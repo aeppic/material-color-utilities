@@ -60,7 +60,13 @@ export type Platform = 'phone'|'watch';
  *     Usually not colorful, but slightly more colorful than Neutral. Intended
  *     for backgrounds & surfaces.
  */
-interface DynamicSchemeOptions {
+
+export interface ExtendedColor {
+  name: string;
+  color: Hct;
+}
+
+    export interface DynamicSchemeOptions {
   sourceColorHct: Hct;
   variant: Variant;
   contrastLevel: number;
@@ -73,6 +79,7 @@ interface DynamicSchemeOptions {
   neutralPalette?: TonalPalette;
   neutralVariantPalette?: TonalPalette;
   errorPalette?: TonalPalette;
+  extendedColors?: ExtendedColor[];
 }
 
 /**
@@ -184,6 +191,8 @@ export class DynamicScheme {
    */
   errorPalette: TonalPalette;
 
+  extendedPalette: Record<string, TonalPalette>;
+
   readonly colors: MaterialDynamicColors;
 
   constructor(args: DynamicSchemeOptions) {
@@ -225,6 +234,13 @@ export class DynamicScheme {
                 this.variant, args.sourceColorHct, this.isDark, this.platform,
                 this.contrastLevel) ??
         TonalPalette.fromHueAndChroma(25.0, 84.0);
+
+    this.extendedPalette = Object.fromEntries(
+      (args.extendedColors ?? []).map((color) => [
+        color.name,
+        TonalPalette.fromHct(color.color),
+      ])
+    );
 
     this.colors = new MaterialDynamicColors();
   }

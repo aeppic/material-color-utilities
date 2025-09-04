@@ -22,7 +22,7 @@ import * as math from '../utils/math_utils.js';
 
 import {ColorSpecDelegateImpl2021} from './color_spec_2021.js';
 import {ContrastCurve} from './contrast_curve.js';
-import {DynamicColor, extendSpecVersion} from './dynamic_color';
+import {DynamicColor, extendSpecVersion} from './dynamic_color.js';
 import {ToneDeltaPair} from './tone_delta_pair.js';
 import {Variant} from './variant.js';
 
@@ -1154,5 +1154,183 @@ export class ColorSpecDelegateImpl2025 extends ColorSpecDelegateImpl2021 {
     const color2025: DynamicColor =
         Object.assign(this.onSurface().clone(), {name: 'on_background'});
     return extendSpecVersion(super.onBackground(), '2025', color2025);
+  }
+
+    /////////////////////////////////////////////////////////////////
+  // Extended Colors                                             //
+  /////////////////////////////////////////////////////////////////
+
+  extended(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: name,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => {
+        if (s.platform === 'phone') {
+          return s.isDark
+            ? tMinC(s.extendedPalette[name], 0, 98)
+            : tMaxC(s.extendedPalette[name])
+        } else {
+          return tMinC(s.extendedPalette[name])
+        }
+      },
+      isBackground: true,
+      background: (s) =>
+        s.platform === 'phone'
+          ? this.highestSurface(s)
+          : this.surfaceContainerHigh(),
+      contrastCurve: (s) =>
+        s.platform === 'phone' ? getCurve(4.5) : getCurve(7),
+      toneDeltaPair: (s) =>
+        s.platform === 'phone'
+          ? new ToneDeltaPair(
+              this.extendedContainer(name),
+              this.extended(name),
+              5,
+              'relative_lighter',
+              true,
+              'farther'
+            )
+          : undefined,
+    })
+  }
+
+  extendedDim(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `${name}_dim`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => tMinC(s.extendedPalette[name]),
+      isBackground: true,
+      background: (s) => this.surfaceContainerHigh(),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          this.extendedDim(name),
+          this.extended(name),
+          5,
+          'darker',
+          true,
+          'farther'
+        ),
+    })
+  }
+
+  onExtended(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `on_${name}`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) =>
+        s.platform === 'phone' ? this.extended(name) : this.extendedDim(name),
+      contrastCurve: (s) =>
+        s.platform === 'phone' ? getCurve(6) : getCurve(7),
+    })
+  }
+
+  extendedContainer(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `${name}_container`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => {
+        if (s.platform === 'watch') {
+          return 30
+        } else {
+          return s.isDark
+            ? tMinC(s.extendedPalette[name], 30, 93)
+            : tMaxC(s.extendedPalette[name], 0, 90)
+        }
+      },
+      isBackground: true,
+      background: (s) =>
+        s.platform === 'phone' ? this.highestSurface(s) : undefined,
+      toneDeltaPair: (s) =>
+        s.platform === 'watch'
+          ? new ToneDeltaPair(
+              this.extendedContainer(name),
+              this.extendedDim(name),
+              10,
+              'darker',
+              true,
+              'farther'
+            )
+          : undefined,
+      contrastCurve: (s) =>
+        s.platform === 'phone' && s.contrastLevel > 0
+          ? getCurve(1.5)
+          : undefined,
+    })
+  }
+
+  onExtendedContainer(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `on_${name}_container`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extendedContainer(name),
+      contrastCurve: (s) =>
+        s.platform === 'phone' ? getCurve(4.5) : getCurve(7),
+    })
+  }
+
+  extendedFixed(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `${name}_fixed`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => {
+        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 })
+        return this.extendedContainer(name).getTone(tempS)
+      },
+      isBackground: true,
+      background: (s) =>
+        s.platform === 'phone' ? this.highestSurface(s) : undefined,
+      contrastCurve: (s) =>
+        s.platform === 'phone' && s.contrastLevel > 0
+          ? getCurve(1.5)
+          : undefined,
+    })
+  }
+
+  extendedFixedDim(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `${name}_fixed_dim`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => this.extendedFixed(name).getTone(s),
+      isBackground: true,
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          this.extendedFixedDim(name),
+          this.extendedFixed(name),
+          5,
+          'darker',
+          true,
+          'exact'
+        ),
+    })
+  }
+
+  onExtendedFixed(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `on_${name}_fixed`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extendedFixedDim(name),
+      contrastCurve: (s) => getCurve(7),
+    })
+  }
+
+  onExtendedFixedVariant(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `on_${name}_fixed_variant`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extendedFixedDim(name),
+      contrastCurve: (s) => getCurve(4.5),
+    })
+  }
+
+  inverseExtended(name: string): DynamicColor {
+    return DynamicColor.fromPalette({
+      name: `inverse_${name}`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => tMaxC(s.extendedPalette[name]),
+      background: (s) => this.inverseSurface(),
+      contrastCurve: (s) =>
+        s.platform === 'phone' ? getCurve(6) : getCurve(7),
+    })
   }
 }

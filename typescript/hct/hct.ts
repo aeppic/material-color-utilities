@@ -32,6 +32,7 @@
  */
 
 import * as utils from '../utils/color_utils.js';
+import * as stringUtils from '../utils/string_utils.js';
 
 import {Cam16} from './cam16.js';
 import {HctSolver} from './hct_solver.js';
@@ -68,9 +69,17 @@ export class Hct {
   static fromInt(argb: number) {
     return new Hct(argb);
   }
+  
+  static fromHex(hex: string) {
+    return Hct.fromInt(stringUtils.argbFromHex(hex));
+  }
 
   toInt(): number {
     return this.argb;
+  }
+
+  toHex(): string {
+    return stringUtils.hexFromArgb(this.argb);
   }
 
   /**
