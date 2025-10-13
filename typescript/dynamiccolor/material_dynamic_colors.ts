@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-import {DislikeAnalyzer} from '../dislike/dislike_analyzer.js';
-import {Hct} from '../hct/hct.js';
-import {TonalPalette} from '../palettes/tonal_palette.js';
-import * as math from '../utils/math_utils.js';
+import { DislikeAnalyzer } from '../dislike/dislike_analyzer.js'
+import { Hct } from '../hct/hct.js'
+import { TonalPalette } from '../palettes/tonal_palette.js'
+import * as math from '../utils/math_utils.js'
 
-import {ColorSpecDelegateImpl2025} from './color_spec_2025.js';
-import {ContrastCurve} from './contrast_curve.js';
-import {DynamicColor} from './dynamic_color.js';
-import type {DynamicScheme} from './dynamic_scheme.js';
-import {ToneDeltaPair} from './tone_delta_pair.js';
-import {Variant} from './variant.js';
+import { ColorSpecDelegateImpl2025 } from './color_spec_2025.js'
+import { ContrastCurve } from './contrast_curve.js'
+import { DynamicColor } from './dynamic_color.js'
+import type { DynamicScheme } from './dynamic_scheme.js'
+import { ToneDeltaPair } from './tone_delta_pair.js'
+import { Variant } from './variant.js'
 
 /**
  * DynamicColors for the colors in the Material Design system.
@@ -33,12 +33,12 @@ import {Variant} from './variant.js';
 // Material Color Utilities namespaces the various utilities it provides.
 // tslint:disable-next-line:class-as-namespace
 export class MaterialDynamicColors {
-  static contentAccentToneDelta = 15.0;
+  static contentAccentToneDelta = 15.0
 
-  private static readonly colorSpec = new ColorSpecDelegateImpl2025();
+  private static readonly colorSpec = new ColorSpecDelegateImpl2025()
 
   highestSurface(s: DynamicScheme): DynamicColor {
-    return MaterialDynamicColors.colorSpec.highestSurface(s);
+    return MaterialDynamicColors.colorSpec.highestSurface(s)
   }
 
   ////////////////////////////////////////////////////////////////
@@ -46,27 +46,27 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   primaryPaletteKeyColor(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.primaryPaletteKeyColor();
+    return MaterialDynamicColors.colorSpec.primaryPaletteKeyColor()
   }
 
   secondaryPaletteKeyColor(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.secondaryPaletteKeyColor();
+    return MaterialDynamicColors.colorSpec.secondaryPaletteKeyColor()
   }
 
   tertiaryPaletteKeyColor(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.tertiaryPaletteKeyColor();
+    return MaterialDynamicColors.colorSpec.tertiaryPaletteKeyColor()
   }
 
   neutralPaletteKeyColor(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.neutralPaletteKeyColor();
+    return MaterialDynamicColors.colorSpec.neutralPaletteKeyColor()
   }
 
   neutralVariantPaletteKeyColor(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.neutralVariantPaletteKeyColor();
+    return MaterialDynamicColors.colorSpec.neutralVariantPaletteKeyColor()
   }
 
   errorPaletteKeyColor(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.errorPaletteKeyColor();
+    return MaterialDynamicColors.colorSpec.errorPaletteKeyColor()
   }
 
   ////////////////////////////////////////////////////////////////
@@ -74,83 +74,83 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   background(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.background();
+    return MaterialDynamicColors.colorSpec.background()
   }
 
   onBackground(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onBackground();
+    return MaterialDynamicColors.colorSpec.onBackground()
   }
 
   surface(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surface();
+    return MaterialDynamicColors.colorSpec.surface()
   }
 
   surfaceDim(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceDim();
+    return MaterialDynamicColors.colorSpec.surfaceDim()
   }
 
   surfaceBright(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceBright();
+    return MaterialDynamicColors.colorSpec.surfaceBright()
   }
 
   surfaceContainerLowest(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerLowest();
+    return MaterialDynamicColors.colorSpec.surfaceContainerLowest()
   }
 
   surfaceContainerLow(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerLow();
+    return MaterialDynamicColors.colorSpec.surfaceContainerLow()
   }
 
   surfaceContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainer();
+    return MaterialDynamicColors.colorSpec.surfaceContainer()
   }
 
   surfaceContainerHigh(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerHigh();
+    return MaterialDynamicColors.colorSpec.surfaceContainerHigh()
   }
 
   surfaceContainerHighest(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerHighest();
+    return MaterialDynamicColors.colorSpec.surfaceContainerHighest()
   }
 
   onSurface(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onSurface();
+    return MaterialDynamicColors.colorSpec.onSurface()
   }
 
   surfaceVariant(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceVariant();
+    return MaterialDynamicColors.colorSpec.surfaceVariant()
   }
 
   onSurfaceVariant(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onSurfaceVariant();
+    return MaterialDynamicColors.colorSpec.onSurfaceVariant()
   }
 
   outline(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.outline();
+    return MaterialDynamicColors.colorSpec.outline()
   }
 
   outlineVariant(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.outlineVariant();
+    return MaterialDynamicColors.colorSpec.outlineVariant()
   }
 
   inverseSurface(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.inverseSurface();
+    return MaterialDynamicColors.colorSpec.inverseSurface()
   }
 
   inverseOnSurface(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.inverseOnSurface();
+    return MaterialDynamicColors.colorSpec.inverseOnSurface()
   }
 
   shadow(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.shadow();
+    return MaterialDynamicColors.colorSpec.shadow()
   }
 
   scrim(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.scrim();
+    return MaterialDynamicColors.colorSpec.scrim()
   }
 
   surfaceTint(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceTint();
+    return MaterialDynamicColors.colorSpec.surfaceTint()
   }
 
   ////////////////////////////////////////////////////////////////
@@ -158,27 +158,27 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   primary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.primary();
+    return MaterialDynamicColors.colorSpec.primary()
   }
 
-  primaryDim(): DynamicColor|undefined {
-    return MaterialDynamicColors.colorSpec.primaryDim();
+  primaryDim(): DynamicColor | undefined {
+    return MaterialDynamicColors.colorSpec.primaryDim()
   }
 
   onPrimary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onPrimary();
+    return MaterialDynamicColors.colorSpec.onPrimary()
   }
 
   primaryContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.primaryContainer();
+    return MaterialDynamicColors.colorSpec.primaryContainer()
   }
 
   onPrimaryContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onPrimaryContainer();
+    return MaterialDynamicColors.colorSpec.onPrimaryContainer()
   }
 
   inversePrimary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.inversePrimary();
+    return MaterialDynamicColors.colorSpec.inversePrimary()
   }
 
   /////////////////////////////////////////////////////////////////
@@ -186,19 +186,19 @@ export class MaterialDynamicColors {
   /////////////////////////////////////////////////////////////////
 
   primaryFixed(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.primaryFixed();
+    return MaterialDynamicColors.colorSpec.primaryFixed()
   }
 
   primaryFixedDim(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.primaryFixedDim();
+    return MaterialDynamicColors.colorSpec.primaryFixedDim()
   }
 
   onPrimaryFixed(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onPrimaryFixed();
+    return MaterialDynamicColors.colorSpec.onPrimaryFixed()
   }
 
   onPrimaryFixedVariant(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onPrimaryFixedVariant();
+    return MaterialDynamicColors.colorSpec.onPrimaryFixedVariant()
   }
 
   ////////////////////////////////////////////////////////////////
@@ -206,23 +206,23 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   secondary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.secondary();
+    return MaterialDynamicColors.colorSpec.secondary()
   }
 
-  secondaryDim(): DynamicColor|undefined {
-    return MaterialDynamicColors.colorSpec.secondaryDim();
+  secondaryDim(): DynamicColor | undefined {
+    return MaterialDynamicColors.colorSpec.secondaryDim()
   }
 
   onSecondary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onSecondary();
+    return MaterialDynamicColors.colorSpec.onSecondary()
   }
 
   secondaryContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.secondaryContainer();
+    return MaterialDynamicColors.colorSpec.secondaryContainer()
   }
 
   onSecondaryContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onSecondaryContainer();
+    return MaterialDynamicColors.colorSpec.onSecondaryContainer()
   }
 
   /////////////////////////////////////////////////////////////////
@@ -230,19 +230,19 @@ export class MaterialDynamicColors {
   /////////////////////////////////////////////////////////////////
 
   secondaryFixed(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.secondaryFixed();
+    return MaterialDynamicColors.colorSpec.secondaryFixed()
   }
 
   secondaryFixedDim(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.secondaryFixedDim();
+    return MaterialDynamicColors.colorSpec.secondaryFixedDim()
   }
 
   onSecondaryFixed(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onSecondaryFixed();
+    return MaterialDynamicColors.colorSpec.onSecondaryFixed()
   }
 
   onSecondaryFixedVariant(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onSecondaryFixedVariant();
+    return MaterialDynamicColors.colorSpec.onSecondaryFixedVariant()
   }
 
   ////////////////////////////////////////////////////////////////
@@ -250,23 +250,23 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   tertiary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.tertiary();
+    return MaterialDynamicColors.colorSpec.tertiary()
   }
 
-  tertiaryDim(): DynamicColor|undefined {
-    return MaterialDynamicColors.colorSpec.tertiaryDim();
+  tertiaryDim(): DynamicColor | undefined {
+    return MaterialDynamicColors.colorSpec.tertiaryDim()
   }
 
   onTertiary(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onTertiary();
+    return MaterialDynamicColors.colorSpec.onTertiary()
   }
 
   tertiaryContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.tertiaryContainer();
+    return MaterialDynamicColors.colorSpec.tertiaryContainer()
   }
 
   onTertiaryContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onTertiaryContainer();
+    return MaterialDynamicColors.colorSpec.onTertiaryContainer()
   }
 
   /////////////////////////////////////////////////////////////////
@@ -274,19 +274,19 @@ export class MaterialDynamicColors {
   /////////////////////////////////////////////////////////////////
 
   tertiaryFixed(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.tertiaryFixed();
+    return MaterialDynamicColors.colorSpec.tertiaryFixed()
   }
 
   tertiaryFixedDim(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.tertiaryFixedDim();
+    return MaterialDynamicColors.colorSpec.tertiaryFixedDim()
   }
 
   onTertiaryFixed(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onTertiaryFixed();
+    return MaterialDynamicColors.colorSpec.onTertiaryFixed()
   }
 
   onTertiaryFixedVariant(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onTertiaryFixedVariant();
+    return MaterialDynamicColors.colorSpec.onTertiaryFixedVariant()
   }
 
   ////////////////////////////////////////////////////////////////
@@ -294,23 +294,43 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   error(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.error();
+    return MaterialDynamicColors.colorSpec.error()
   }
 
-  errorDim(): DynamicColor|undefined {
-    return MaterialDynamicColors.colorSpec.errorDim();
+  errorDim(): DynamicColor | undefined {
+    return MaterialDynamicColors.colorSpec.errorDim()
   }
 
   onError(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onError();
+    return MaterialDynamicColors.colorSpec.onError()
   }
 
   errorContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.errorContainer();
+    return MaterialDynamicColors.colorSpec.errorContainer()
   }
 
   onErrorContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.onErrorContainer();
+    return MaterialDynamicColors.colorSpec.onErrorContainer()
+  }
+
+  errorFixed(): DynamicColor {
+    return MaterialDynamicColors.colorSpec.errorFixed()
+  }
+
+  errorFixedDim(): DynamicColor {
+    return MaterialDynamicColors.colorSpec.errorFixedDim()
+  }
+
+  onErrorFixed(): DynamicColor {
+    return MaterialDynamicColors.colorSpec.onErrorFixed()
+  }
+
+  onErrorFixedVariant(): DynamicColor {
+    return MaterialDynamicColors.colorSpec.onErrorFixedVariant()
+  }
+
+  inverseError(): DynamicColor {
+    return MaterialDynamicColors.colorSpec.inverseError()
   }
 
   ////////////////////////////////////////////////////////////////
@@ -318,6 +338,12 @@ export class MaterialDynamicColors {
   ////////////////////////////////////////////////////////////////
 
   allColors: DynamicColor[] = [
+    this.primaryPaletteKeyColor(),
+    this.secondaryPaletteKeyColor(),
+    this.tertiaryPaletteKeyColor(),
+    this.neutralPaletteKeyColor(),
+    this.neutralVariantPaletteKeyColor(),
+    this.errorPaletteKeyColor(),
     this.background(),
     this.onBackground(),
     this.surface(),
@@ -334,6 +360,9 @@ export class MaterialDynamicColors {
     this.outlineVariant(),
     this.inverseSurface(),
     this.inverseOnSurface(),
+    this.shadow(),
+    this.scrim(),
+    this.surfaceTint(),
     this.primary(),
     this.primaryDim(),
     this.onPrimary(),
@@ -367,191 +396,196 @@ export class MaterialDynamicColors {
     this.onError(),
     this.errorContainer(),
     this.onErrorContainer(),
-  ].filter((c) => c !== undefined);
+    this.errorFixed(),
+    this.errorFixedDim(),
+    this.onErrorFixed(),
+    this.onErrorFixedVariant(),
+    this.inverseError(),
+  ].filter((c) => c !== undefined)
 
   // Static variables are deprecated. Use the instance methods to get correct
   // specs based on request.
 
   /** @deprecated Use highestSurface() instead. */
   static highestSurface(s: DynamicScheme): DynamicColor {
-    return MaterialDynamicColors.colorSpec.highestSurface(s);
+    return MaterialDynamicColors.colorSpec.highestSurface(s)
   }
 
   /** @deprecated Use primaryPaletteKeyColor() instead. */
   static primaryPaletteKeyColor =
-      MaterialDynamicColors.colorSpec.primaryPaletteKeyColor();
+    MaterialDynamicColors.colorSpec.primaryPaletteKeyColor()
 
   /** @deprecated Use secondaryPaletteKeyColor() instead. */
   static secondaryPaletteKeyColor =
-      MaterialDynamicColors.colorSpec.secondaryPaletteKeyColor();
+    MaterialDynamicColors.colorSpec.secondaryPaletteKeyColor()
 
   /** @deprecated Use tertiaryPaletteKeyColor() instead. */
   static tertiaryPaletteKeyColor =
-      MaterialDynamicColors.colorSpec.tertiaryPaletteKeyColor();
+    MaterialDynamicColors.colorSpec.tertiaryPaletteKeyColor()
 
   /** @deprecated Use neutralPaletteKeyColor() instead. */
   static neutralPaletteKeyColor =
-      MaterialDynamicColors.colorSpec.neutralPaletteKeyColor();
+    MaterialDynamicColors.colorSpec.neutralPaletteKeyColor()
 
   /** @deprecated Use neutralVariantPaletteKeyColor() instead. */
   static neutralVariantPaletteKeyColor =
-      MaterialDynamicColors.colorSpec.neutralVariantPaletteKeyColor();
+    MaterialDynamicColors.colorSpec.neutralVariantPaletteKeyColor()
 
   /** @deprecated Use background() instead. */
-  static background = MaterialDynamicColors.colorSpec.background();
+  static background = MaterialDynamicColors.colorSpec.background()
 
   /** @deprecated Use background() instead. */
-  static onBackground = MaterialDynamicColors.colorSpec.onBackground();
+  static onBackground = MaterialDynamicColors.colorSpec.onBackground()
 
   /** @deprecated Use surface() instead. */
-  static surface = MaterialDynamicColors.colorSpec.surface();
+  static surface = MaterialDynamicColors.colorSpec.surface()
 
   /** @deprecated Use surfaceDim() instead. */
-  static surfaceDim = MaterialDynamicColors.colorSpec.surfaceDim();
+  static surfaceDim = MaterialDynamicColors.colorSpec.surfaceDim()
 
   /** @deprecated Use surfaceBright() instead. */
-  static surfaceBright = MaterialDynamicColors.colorSpec.surfaceBright();
+  static surfaceBright = MaterialDynamicColors.colorSpec.surfaceBright()
 
   /** @deprecated Use surfaceContainerLowest() instead. */
   static surfaceContainerLowest =
-      MaterialDynamicColors.colorSpec.surfaceContainerLowest();
+    MaterialDynamicColors.colorSpec.surfaceContainerLowest()
 
   /** @deprecated Use surfaceContainerLow() instead. */
   static surfaceContainerLow =
-      MaterialDynamicColors.colorSpec.surfaceContainerLow();
+    MaterialDynamicColors.colorSpec.surfaceContainerLow()
 
   /** @deprecated Use surfaceContainer() instead. */
-  static surfaceContainer = MaterialDynamicColors.colorSpec.surfaceContainer();
+  static surfaceContainer = MaterialDynamicColors.colorSpec.surfaceContainer()
 
   /** @deprecated Use surfaceContainerHigh() instead. */
   static surfaceContainerHigh =
-      MaterialDynamicColors.colorSpec.surfaceContainerHigh();
+    MaterialDynamicColors.colorSpec.surfaceContainerHigh()
 
   /** @deprecated Use surfaceContainerHighest() instead. */
   static surfaceContainerHighest =
-      MaterialDynamicColors.colorSpec.surfaceContainerHighest();
+    MaterialDynamicColors.colorSpec.surfaceContainerHighest()
 
   /** @deprecated Use onSurface() instead. */
-  static onSurface = MaterialDynamicColors.colorSpec.onSurface();
+  static onSurface = MaterialDynamicColors.colorSpec.onSurface()
 
   /** @deprecated Use surfaceVariant() instead. */
-  static surfaceVariant = MaterialDynamicColors.colorSpec.surfaceVariant();
+  static surfaceVariant = MaterialDynamicColors.colorSpec.surfaceVariant()
 
   /** @deprecated Use onSurfaceVariant() instead. */
-  static onSurfaceVariant = MaterialDynamicColors.colorSpec.onSurfaceVariant();
+  static onSurfaceVariant = MaterialDynamicColors.colorSpec.onSurfaceVariant()
 
   /** @deprecated Use inverseSurface() instead. */
-  static inverseSurface = MaterialDynamicColors.colorSpec.inverseSurface();
+  static inverseSurface = MaterialDynamicColors.colorSpec.inverseSurface()
 
   /** @deprecated Use inverseOnSurface() instead. */
-  static inverseOnSurface = MaterialDynamicColors.colorSpec.inverseOnSurface();
+  static inverseOnSurface = MaterialDynamicColors.colorSpec.inverseOnSurface()
 
   /** @deprecated Use outline() instead. */
-  static outline = MaterialDynamicColors.colorSpec.outline();
+  static outline = MaterialDynamicColors.colorSpec.outline()
 
   /** @deprecated Use outlineVariant() instead. */
-  static outlineVariant = MaterialDynamicColors.colorSpec.outlineVariant();
+  static outlineVariant = MaterialDynamicColors.colorSpec.outlineVariant()
 
   /** @deprecated Use shadow() instead. */
-  static shadow = MaterialDynamicColors.colorSpec.shadow();
+  static shadow = MaterialDynamicColors.colorSpec.shadow()
 
   /** @deprecated Use scrim() instead. */
-  static scrim = MaterialDynamicColors.colorSpec.scrim();
+  static scrim = MaterialDynamicColors.colorSpec.scrim()
 
   /** @deprecated Use surfaceTint() instead. */
-  static surfaceTint = MaterialDynamicColors.colorSpec.surfaceTint();
+  static surfaceTint = MaterialDynamicColors.colorSpec.surfaceTint()
 
   /** @deprecated Use primary() instead. */
-  static primary = MaterialDynamicColors.colorSpec.primary();
+  static primary = MaterialDynamicColors.colorSpec.primary()
 
   /** @deprecated Use onPrimary() instead. */
-  static onPrimary = MaterialDynamicColors.colorSpec.onPrimary();
+  static onPrimary = MaterialDynamicColors.colorSpec.onPrimary()
 
   /** @deprecated Use primaryContainer() instead. */
-  static primaryContainer = MaterialDynamicColors.colorSpec.primaryContainer();
+  static primaryContainer = MaterialDynamicColors.colorSpec.primaryContainer()
 
   /** @deprecated Use onPrimaryContainer() instead. */
   static onPrimaryContainer =
-      MaterialDynamicColors.colorSpec.onPrimaryContainer();
+    MaterialDynamicColors.colorSpec.onPrimaryContainer()
 
   /** @deprecated Use inversePrimary() instead. */
-  static inversePrimary = MaterialDynamicColors.colorSpec.inversePrimary();
+  static inversePrimary = MaterialDynamicColors.colorSpec.inversePrimary()
 
   /** @deprecated Use secondary() instead. */
-  static secondary = MaterialDynamicColors.colorSpec.secondary();
+  static secondary = MaterialDynamicColors.colorSpec.secondary()
 
   /** @deprecated Use onSecondary() instead. */
-  static onSecondary = MaterialDynamicColors.colorSpec.onSecondary();
+  static onSecondary = MaterialDynamicColors.colorSpec.onSecondary()
 
   /** @deprecated Use secondaryContainer() instead. */
   static secondaryContainer =
-      MaterialDynamicColors.colorSpec.secondaryContainer();
+    MaterialDynamicColors.colorSpec.secondaryContainer()
 
   /** @deprecated Use onSecondaryContainer() instead. */
   static onSecondaryContainer =
-      MaterialDynamicColors.colorSpec.onSecondaryContainer();
+    MaterialDynamicColors.colorSpec.onSecondaryContainer()
 
   /** @deprecated Use tertiary() instead. */
-  static tertiary = MaterialDynamicColors.colorSpec.tertiary();
+  static tertiary = MaterialDynamicColors.colorSpec.tertiary()
 
   /** @deprecated Use onTertiary() instead. */
-  static onTertiary = MaterialDynamicColors.colorSpec.onTertiary();
+  static onTertiary = MaterialDynamicColors.colorSpec.onTertiary()
 
   /** @deprecated Use tertiaryContainer() instead. */
-  static tertiaryContainer = MaterialDynamicColors.colorSpec.tertiaryContainer();
+  static tertiaryContainer = MaterialDynamicColors.colorSpec.tertiaryContainer()
 
   /** @deprecated Use onTertiaryContainer() instead. */
   static onTertiaryContainer =
-      MaterialDynamicColors.colorSpec.onTertiaryContainer();
+    MaterialDynamicColors.colorSpec.onTertiaryContainer()
 
   /** @deprecated Use error() instead. */
-  static error = MaterialDynamicColors.colorSpec.error();
+  static error = MaterialDynamicColors.colorSpec.error()
 
   /** @deprecated Use onError() instead. */
-  static onError = MaterialDynamicColors.colorSpec.onError();
+  static onError = MaterialDynamicColors.colorSpec.onError()
 
   /** @deprecated Use errorContainer() instead. */
-  static errorContainer = MaterialDynamicColors.colorSpec.errorContainer();
+  static errorContainer = MaterialDynamicColors.colorSpec.errorContainer()
 
   /** @deprecated Use onErrorContainer() instead. */
-  static onErrorContainer = MaterialDynamicColors.colorSpec.onErrorContainer();
+  static onErrorContainer = MaterialDynamicColors.colorSpec.onErrorContainer()
 
   /** @deprecated Use primaryFixed() instead. */
-  static primaryFixed = MaterialDynamicColors.colorSpec.primaryFixed();
+  static primaryFixed = MaterialDynamicColors.colorSpec.primaryFixed()
 
   /** @deprecated Use primaryFixedDim() instead. */
-  static primaryFixedDim = MaterialDynamicColors.colorSpec.primaryFixedDim();
+  static primaryFixedDim = MaterialDynamicColors.colorSpec.primaryFixedDim()
 
   /** @deprecated Use onPrimaryFixed() instead. */
-  static onPrimaryFixed = MaterialDynamicColors.colorSpec.onPrimaryFixed();
+  static onPrimaryFixed = MaterialDynamicColors.colorSpec.onPrimaryFixed()
 
   /** @deprecated Use onPrimaryFixedVariant() instead. */
   static onPrimaryFixedVariant =
-      MaterialDynamicColors.colorSpec.onPrimaryFixedVariant();
+    MaterialDynamicColors.colorSpec.onPrimaryFixedVariant()
 
   /** @deprecated Use secondaryFixed() instead. */
-  static secondaryFixed = MaterialDynamicColors.colorSpec.secondaryFixed();
+  static secondaryFixed = MaterialDynamicColors.colorSpec.secondaryFixed()
 
   /** @deprecated Use secondaryFixedDim() instead. */
-  static secondaryFixedDim = MaterialDynamicColors.colorSpec.secondaryFixedDim();
+  static secondaryFixedDim = MaterialDynamicColors.colorSpec.secondaryFixedDim()
 
   /** @deprecated Use onSecondaryFixed() instead. */
-  static onSecondaryFixed = MaterialDynamicColors.colorSpec.onSecondaryFixed();
+  static onSecondaryFixed = MaterialDynamicColors.colorSpec.onSecondaryFixed()
 
   /** @deprecated Use onSecondaryFixedVariant() instead. */
   static onSecondaryFixedVariant =
-      MaterialDynamicColors.colorSpec.onSecondaryFixedVariant();
+    MaterialDynamicColors.colorSpec.onSecondaryFixedVariant()
 
   /** @deprecated Use tertiaryFixed() instead. */
-  static tertiaryFixed = MaterialDynamicColors.colorSpec.tertiaryFixed();
+  static tertiaryFixed = MaterialDynamicColors.colorSpec.tertiaryFixed()
 
   /** @deprecated Use tertiaryFixedDim() instead. */
-  static tertiaryFixedDim = MaterialDynamicColors.colorSpec.tertiaryFixedDim();
+  static tertiaryFixedDim = MaterialDynamicColors.colorSpec.tertiaryFixedDim()
 
   /** @deprecated Use onTertiaryFixed() instead. */
-  static onTertiaryFixed = MaterialDynamicColors.colorSpec.onTertiaryFixed();
+  static onTertiaryFixed = MaterialDynamicColors.colorSpec.onTertiaryFixed()
 
   /** @deprecated Use onTertiaryFixedVariant() instead. */
   static onTertiaryFixedVariant =
-      MaterialDynamicColors.colorSpec.onTertiaryFixedVariant();
+    MaterialDynamicColors.colorSpec.onTertiaryFixedVariant()
 }

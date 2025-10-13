@@ -21,13 +21,17 @@
  * colors corresponding to the theme.
  */
 export enum Variant {
-  MONOCHROME,
-  NEUTRAL,
-  TONAL_SPOT,
-  VIBRANT,
-  EXPRESSIVE,
-  FIDELITY,
-  CONTENT,
-  RAINBOW,
-  FRUIT_SALAD
+  MONOCHROME = 'MONOCHROME',
+  NEUTRAL = 'NEUTRAL',
+  TONAL_SPOT = 'TONAL_SPOT',
+  VIBRANT = 'VIBRANT',
+  EXPRESSIVE = 'EXPRESSIVE',
+  FIDELITY = 'FIDELITY',
+  CONTENT = 'CONTENT',
+  RAINBOW = 'RAINBOW',
+  FRUIT_SALAD = 'FRUIT_SALAD',
+}
+
+export function isVariant(value: string): value is Variant {
+  return Object.values(Variant).includes(value as Variant)
 }

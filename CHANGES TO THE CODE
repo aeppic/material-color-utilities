@@ -1,6 +1,10 @@
 In /typescript:
-  Added .js extension to every import.
-  /tsconfig.json: noUnusedLocals to false
-  /dynamiccolor/color_spec_2025.ts: Added functions to calculate colors for extended colors.
-  /dynamiccolor/dynamic_scheme.ts: exported DynamicSchemeOptions; Added ExtendedColor interface and its option in DynamicSchemeOptions; Added field extendedPalette to DynamicScheme Class and initialization
-  /hct/hct.ts: Added fromHex and toHex methods
+General: Added .js extension to every import. Changed semicolons and formatting.
+/index.ts: Added export for dynamiccolor/dynamic_spec.js
+/tsconfig.json: noUnusedLocals to false
+/dynamiccolor/color_spec_2025.ts: Added functions to calculate colors for extended colors.
+/dynamiccolor/color_spec.ts: Added function isSpecVersion
+/dynamiccolor/dynamic_scheme.ts: exported DynamicSchemeOptions; Added ExtendedColor interface and its option in DynamicSchemeOptions; Added field extendedPalette to DynamicScheme Class and initialization; Added function isPlatform; Added function addExtendedColor; Added rawExtendedColors; Added clone function; Added more error colors; 
+/dynamiccolor/material_dynamic_colors.ts: Added shadow, scrim, and surfaceTint to allColors; Added Error Colors;
+/hct/hct.ts: Added fromHex and toHex methods
+/dynamiccolor/variant.ts: Added functions isVariant; Changed enum underlying values

@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-import {Hct} from '../hct/hct.js';
-import {TonalPalette} from '../palettes/tonal_palette.js';
+import { Hct } from '../hct/hct.js'
+import { TonalPalette } from '../palettes/tonal_palette.js'
 
-import {ColorSpecDelegateImpl2021} from './color_spec_2021.js';
-import {ColorSpecDelegateImpl2025} from './color_spec_2025.js';
-import type {DynamicColor} from './dynamic_color.js';
-import {DynamicScheme, Platform} from './dynamic_scheme.js';
-import {Variant} from './variant.js';
+import { ColorSpecDelegateImpl2021 } from './color_spec_2021.js'
+import { ColorSpecDelegateImpl2025 } from './color_spec_2025.js'
+import type { DynamicColor } from './dynamic_color.js'
+import { DynamicScheme, Platform } from './dynamic_scheme.js'
+import { Variant } from './variant.js'
 
-export type SpecVersion = '2021'|'2025';
+export type SpecVersion = '2021' | '2025'
+
+const VALID_SPEC_VERSIONS: SpecVersion[] = ['2021', '2025']
+export function isSpecVersion(value: string): value is SpecVersion {
+  return VALID_SPEC_VERSIONS.includes(value as SpecVersion)
+}
 
 /**
  * A delegate that provides the dynamic color constraints for
@@ -38,165 +43,165 @@ export interface ColorSpecDelegate {
   // Main Palettes                                              //
   ////////////////////////////////////////////////////////////////
 
-  primaryPaletteKeyColor(): DynamicColor;
+  primaryPaletteKeyColor(): DynamicColor
 
-  secondaryPaletteKeyColor(): DynamicColor;
+  secondaryPaletteKeyColor(): DynamicColor
 
-  tertiaryPaletteKeyColor(): DynamicColor;
+  tertiaryPaletteKeyColor(): DynamicColor
 
-  neutralPaletteKeyColor(): DynamicColor;
+  neutralPaletteKeyColor(): DynamicColor
 
-  neutralVariantPaletteKeyColor(): DynamicColor;
+  neutralVariantPaletteKeyColor(): DynamicColor
 
-  errorPaletteKeyColor(): DynamicColor;
+  errorPaletteKeyColor(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Surfaces [S]                                               //
   ////////////////////////////////////////////////////////////////
 
-  background(): DynamicColor;
+  background(): DynamicColor
 
-  onBackground(): DynamicColor;
+  onBackground(): DynamicColor
 
-  surface(): DynamicColor;
+  surface(): DynamicColor
 
-  surfaceDim(): DynamicColor;
+  surfaceDim(): DynamicColor
 
-  surfaceBright(): DynamicColor;
+  surfaceBright(): DynamicColor
 
-  surfaceContainerLowest(): DynamicColor;
+  surfaceContainerLowest(): DynamicColor
 
-  surfaceContainerLow(): DynamicColor;
+  surfaceContainerLow(): DynamicColor
 
-  surfaceContainer(): DynamicColor;
+  surfaceContainer(): DynamicColor
 
-  surfaceContainerHigh(): DynamicColor;
+  surfaceContainerHigh(): DynamicColor
 
-  surfaceContainerHighest(): DynamicColor;
+  surfaceContainerHighest(): DynamicColor
 
-  onSurface(): DynamicColor;
+  onSurface(): DynamicColor
 
-  surfaceVariant(): DynamicColor;
+  surfaceVariant(): DynamicColor
 
-  onSurfaceVariant(): DynamicColor;
+  onSurfaceVariant(): DynamicColor
 
-  inverseSurface(): DynamicColor;
+  inverseSurface(): DynamicColor
 
-  inverseOnSurface(): DynamicColor;
+  inverseOnSurface(): DynamicColor
 
-  outline(): DynamicColor;
+  outline(): DynamicColor
 
-  outlineVariant(): DynamicColor;
+  outlineVariant(): DynamicColor
 
-  shadow(): DynamicColor;
+  shadow(): DynamicColor
 
-  scrim(): DynamicColor;
+  scrim(): DynamicColor
 
-  surfaceTint(): DynamicColor;
+  surfaceTint(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Primaries [P]                                              //
   ////////////////////////////////////////////////////////////////
 
-  primary(): DynamicColor;
+  primary(): DynamicColor
 
-  primaryDim(): DynamicColor|undefined;
+  primaryDim(): DynamicColor | undefined
 
-  onPrimary(): DynamicColor;
+  onPrimary(): DynamicColor
 
-  primaryContainer(): DynamicColor;
+  primaryContainer(): DynamicColor
 
-  onPrimaryContainer(): DynamicColor;
+  onPrimaryContainer(): DynamicColor
 
-  inversePrimary(): DynamicColor;
+  inversePrimary(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Secondaries [Q]                                            //
   ////////////////////////////////////////////////////////////////
 
-  secondary(): DynamicColor;
+  secondary(): DynamicColor
 
-  secondaryDim(): DynamicColor|undefined;
+  secondaryDim(): DynamicColor | undefined
 
-  onSecondary(): DynamicColor;
+  onSecondary(): DynamicColor
 
-  secondaryContainer(): DynamicColor;
+  secondaryContainer(): DynamicColor
 
-  onSecondaryContainer(): DynamicColor;
+  onSecondaryContainer(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Tertiaries [T]                                             //
   ////////////////////////////////////////////////////////////////
 
-  tertiary(): DynamicColor;
+  tertiary(): DynamicColor
 
-  tertiaryDim(): DynamicColor|undefined;
+  tertiaryDim(): DynamicColor | undefined
 
-  onTertiary(): DynamicColor;
+  onTertiary(): DynamicColor
 
-  tertiaryContainer(): DynamicColor;
+  tertiaryContainer(): DynamicColor
 
-  onTertiaryContainer(): DynamicColor;
+  onTertiaryContainer(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Errors [E]                                                 //
   ////////////////////////////////////////////////////////////////
 
-  error(): DynamicColor;
+  error(): DynamicColor
 
-  errorDim(): DynamicColor|undefined;
+  errorDim(): DynamicColor | undefined
 
-  onError(): DynamicColor;
+  onError(): DynamicColor
 
-  errorContainer(): DynamicColor;
+  errorContainer(): DynamicColor
 
-  onErrorContainer(): DynamicColor;
+  onErrorContainer(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Primary Fixed Colors [PF]                                  //
   ////////////////////////////////////////////////////////////////
 
-  primaryFixed(): DynamicColor;
+  primaryFixed(): DynamicColor
 
-  primaryFixedDim(): DynamicColor;
+  primaryFixedDim(): DynamicColor
 
-  onPrimaryFixed(): DynamicColor;
+  onPrimaryFixed(): DynamicColor
 
-  onPrimaryFixedVariant(): DynamicColor;
+  onPrimaryFixedVariant(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Secondary Fixed Colors [QF]                                //
   ////////////////////////////////////////////////////////////////
 
-  secondaryFixed(): DynamicColor;
+  secondaryFixed(): DynamicColor
 
-  secondaryFixedDim(): DynamicColor;
+  secondaryFixedDim(): DynamicColor
 
-  onSecondaryFixed(): DynamicColor;
+  onSecondaryFixed(): DynamicColor
 
-  onSecondaryFixedVariant(): DynamicColor;
+  onSecondaryFixedVariant(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Tertiary Fixed Colors [TF]                                 //
   ////////////////////////////////////////////////////////////////
 
-  tertiaryFixed(): DynamicColor;
+  tertiaryFixed(): DynamicColor
 
-  tertiaryFixedDim(): DynamicColor;
+  tertiaryFixedDim(): DynamicColor
 
-  onTertiaryFixed(): DynamicColor;
+  onTertiaryFixed(): DynamicColor
 
-  onTertiaryFixedVariant(): DynamicColor;
+  onTertiaryFixedVariant(): DynamicColor
 
   ////////////////////////////////////////////////////////////////
   // Other                                                      //
   ////////////////////////////////////////////////////////////////
 
-  highestSurface: (s: DynamicScheme) => DynamicColor;
+  highestSurface: (s: DynamicScheme) => DynamicColor
 }
 
-export const spec_2021 = new ColorSpecDelegateImpl2021();
-export const spec_2025 = new ColorSpecDelegateImpl2025();
+export const spec_2021 = new ColorSpecDelegateImpl2021()
+export const spec_2025 = new ColorSpecDelegateImpl2025()
 
 /**
  * Returns the ColorSpecDelegate for the given spec version.
@@ -204,10 +209,10 @@ export const spec_2025 = new ColorSpecDelegateImpl2025();
 export function getSpec(specVersion: SpecVersion): ColorSpecDelegate {
   switch (specVersion) {
     case '2021':
-      return spec_2021;
+      return spec_2021
     case '2025':
-      return spec_2025;
+      return spec_2025
     default:
-      throw new Error(`Unsupported spec version: ${specVersion}`);
+      throw new Error(`Unsupported spec version: ${specVersion}`)
   }
 }
