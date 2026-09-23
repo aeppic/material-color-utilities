@@ -30,6 +30,7 @@ export enum Variant {
   CONTENT = 'CONTENT',
   RAINBOW = 'RAINBOW',
   FRUIT_SALAD = 'FRUIT_SALAD',
+  CMF = 'CMF',
 }
 
 export function isVariant(value: string): value is Variant {

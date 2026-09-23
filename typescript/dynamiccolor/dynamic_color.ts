@@ -17,7 +17,7 @@
 
 import {Contrast} from '../contrast/contrast.js';
 import {Hct} from '../hct/hct.js';
-import type {TonalPalette} from '../palettes/tonal_palette.js';
+import {TonalPalette} from '../palettes/tonal_palette.js';
 import * as math from '../utils/math_utils.js';
 
 import type {SpecVersion} from './color_spec.js';
@@ -108,37 +108,37 @@ export function extendSpecVersion(
 
   return DynamicColor.fromPalette({
     name: originlColor.name,
-    palette: (s) => s.specVersion === specVersion ? extendedColor.palette(s) :
+    palette: (s) => s.specVersion >= specVersion ? extendedColor.palette(s) :
                                                     originlColor.palette(s),
-    tone: (s) => s.specVersion === specVersion ? extendedColor.tone(s) :
+    tone: (s) => s.specVersion >= specVersion ? extendedColor.tone(s) :
                                                  originlColor.tone(s),
     isBackground: originlColor.isBackground,
     chromaMultiplier: (s) => {
-      const chromaMultiplier = s.specVersion === specVersion ?
+      const chromaMultiplier = s.specVersion >= specVersion ?
           extendedColor.chromaMultiplier :
           originlColor.chromaMultiplier;
       return chromaMultiplier !== undefined ? chromaMultiplier(s) : 1;
     },
     background: (s) => {
-      const background = s.specVersion === specVersion ?
+      const background = s.specVersion >= specVersion ?
           extendedColor.background :
           originlColor.background;
       return background !== undefined ? background(s) : undefined
     },
     secondBackground: (s) => {
-      const secondBackground = s.specVersion === specVersion ?
+      const secondBackground = s.specVersion >= specVersion ?
           extendedColor.secondBackground :
           originlColor.secondBackground;
       return secondBackground !== undefined ? secondBackground(s) : undefined;
     },
     contrastCurve: (s) => {
-      const contrastCurve = s.specVersion === specVersion ?
+      const contrastCurve = s.specVersion >= specVersion ?
           extendedColor.contrastCurve :
           originlColor.contrastCurve;
       return contrastCurve !== undefined ? contrastCurve(s) : undefined;
     },
     toneDeltaPair: (s) => {
-      const toneDeltaPair = s.specVersion === specVersion ?
+      const toneDeltaPair = s.specVersion >= specVersion ?
           extendedColor.toneDeltaPair :
           originlColor.toneDeltaPair;
       return toneDeltaPair !== undefined ? toneDeltaPair(s) : undefined;
@@ -589,11 +589,17 @@ class ColorCalculationDelegateImpl2025 implements ColorCalculationDelegate {
   getHct(scheme: DynamicScheme, color: DynamicColor): Hct {
     const palette = color.palette(scheme);
     const tone = color.getTone(scheme);
-    const hue = palette.hue;
-    const chroma = palette.chroma *
-        (color.chromaMultiplier ? color.chromaMultiplier(scheme) : 1);
+    const multiplier =
+        color.chromaMultiplier ? color.chromaMultiplier(scheme) : 1;
+    if (multiplier === 1) {
+      return palette.getHct(tone);
+    }
 
-    return Hct.from(hue, chroma, tone);
+    const chroma = palette.chroma * multiplier;
+    if (tone === 99 && Hct.isYellow(palette.hue)) {
+      return TonalPalette.fromHueAndChroma(palette.hue, chroma).getHct(tone);
+    }
+    return Hct.from(palette.hue, chroma, tone);
   }
 
   getTone(scheme: DynamicScheme, color: DynamicColor): number {
@@ -748,5 +754,5 @@ const spec2025 = new ColorCalculationDelegateImpl2025();
  * Returns the ColorCalculationDelegate for the given spec version.
  */
 function getSpec(specVersion: SpecVersion): ColorCalculationDelegate {
-  return specVersion === '2025' ? spec2025 : spec2021;
+  return specVersion === '2021' ? spec2021 : spec2025;
 }

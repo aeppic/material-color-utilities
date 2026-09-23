@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { Contrast } from '../contrast/contrast.js'
 import { Hct } from '../hct/hct.js'
 import { TonalPalette } from '../palettes/tonal_palette.js'
 import * as math from '../utils/math_utils.js'
@@ -23,6 +22,7 @@ import * as math from '../utils/math_utils.js'
 import { ColorSpecDelegateImpl2021 } from './color_spec_2021.js'
 import { ContrastCurve } from './contrast_curve.js'
 import { DynamicColor, extendSpecVersion } from './dynamic_color.js'
+import type { DynamicScheme } from './dynamic_scheme.js'
 import { ToneDeltaPair } from './tone_delta_pair.js'
 import { Variant } from './variant.js'
 
@@ -103,7 +103,7 @@ function findBestToneForChroma(
  */
 function getCurve(defaultContrast: number): ContrastCurve {
   if (defaultContrast === 1.5) {
-    return new ContrastCurve(1.5, 1.5, 3, 4.5)
+    return new ContrastCurve(1.5, 1.5, 3, 5.5)
   } else if (defaultContrast === 3) {
     return new ContrastCurve(3, 3, 4.5, 7)
   } else if (defaultContrast === 4.5) {
@@ -434,7 +434,8 @@ export class ColorSpecDelegateImpl2025 extends ColorSpecDelegateImpl2021 {
         s.platform === 'phone'
           ? this.highestSurface(s)
           : this.surfaceContainerHigh(),
-      contrastCurve: (s) => (s.isDark ? getCurve(11) : getCurve(9)),
+      contrastCurve: (s) =>
+        s.isDark && s.platform === 'phone' ? getCurve(11) : getCurve(9),
     })
     return extendSpecVersion(super.onSurface(), '2025', color2025)
   }
@@ -579,22 +580,34 @@ export class ColorSpecDelegateImpl2025 extends ColorSpecDelegateImpl2021 {
             return tMaxC(s.primaryPalette, 0, 90)
           }
         } else if (s.variant === Variant.EXPRESSIVE) {
-          return tMaxC(
-            s.primaryPalette,
-            0,
-            Hct.isYellow(s.primaryPalette.hue)
-              ? 25
-              : Hct.isCyan(s.primaryPalette.hue)
-                ? 88
-                : 98
-          )
+          if (s.platform === 'phone') {
+            return tMaxC(
+              s.primaryPalette,
+              0,
+              s.isDark
+                ? Hct.isCyan(s.primaryPalette.hue)
+                  ? 88
+                  : 98
+                : Hct.isYellow(s.primaryPalette.hue)
+                  ? 25
+                  : 98
+            )
+          } else {
+            // WATCH
+            return tMaxC(s.primaryPalette)
+          }
         } else {
           // VIBRANT
-          return tMaxC(
-            s.primaryPalette,
-            0,
-            Hct.isCyan(s.primaryPalette.hue) ? 88 : 98
-          )
+          if (s.platform === 'phone') {
+            return tMaxC(
+              s.primaryPalette,
+              0,
+              Hct.isCyan(s.primaryPalette.hue) ? 88 : 98
+            )
+          } else {
+            // WATCH
+            return tMaxC(s.primaryPalette)
+          }
         }
       },
       isBackground: true,
@@ -674,7 +687,7 @@ export class ColorSpecDelegateImpl2025 extends ColorSpecDelegateImpl2021 {
             : tMaxC(s.primaryPalette, 0, 90)
         } else if (s.variant === Variant.EXPRESSIVE) {
           return s.isDark
-            ? tMaxC(s.primaryPalette, 30, 93)
+            ? tMinC(s.primaryPalette, 30, 93)
             : tMaxC(
                 s.primaryPalette,
                 78,
@@ -1405,6 +1418,9 @@ export class ColorSpecDelegateImpl2025 extends ColorSpecDelegateImpl2021 {
   override onBackground(): DynamicColor {
     const color2025: DynamicColor = Object.assign(this.onSurface().clone(), {
       name: 'on_background',
+      tone: (s: DynamicScheme) => {
+        return s.platform === 'watch' ? 100.0 : this.onSurface().getTone(s)
+      },
     })
     return extendSpecVersion(super.onBackground(), '2025', color2025)
   }
