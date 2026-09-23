@@ -773,6 +773,207 @@ export class ColorSpecDelegateImpl2026 extends ColorSpecDelegateImpl2025 {
   }
 
   /////////////////////////////////////////////////////////////////
+  // Aeppic Error Fixed Colors                                   //
+  /////////////////////////////////////////////////////////////////
+
+  override errorFixed(): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: 'error_fixed',
+      palette: (s) => s.errorPalette,
+      tone: (s) => this.errorContainer().getTone(
+          Object.assign({}, s, {isDark: false, contrastLevel: 0})),
+      isBackground: true,
+      background: (s) => this.highestSurface(s),
+      contrastCurve: (s) => s.contrastLevel > 0 ? getCurve(1.5) : undefined,
+    });
+    return extendSpecVersion(super.errorFixed(), '2026', color2026);
+  }
+
+  override errorFixedDim(): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: 'error_fixed_dim',
+      palette: (s) => s.errorPalette,
+      tone: (s) => this.errorFixed().getTone(s),
+      isBackground: true,
+      background: (s) => this.highestSurface(s),
+      toneDeltaPair: (s) => new ToneDeltaPair(
+          this.errorFixedDim(), this.errorFixed(), 5, 'darker', true, 'exact'),
+      contrastCurve: (s) => s.contrastLevel > 0 ? getCurve(1.5) : undefined,
+    });
+    return extendSpecVersion(super.errorFixedDim(), '2026', color2026);
+  }
+
+  override onErrorFixed(): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: 'on_error_fixed',
+      palette: (s) => s.errorPalette,
+      background: (s) => this.errorFixed().getTone(s) > 57 ?
+          this.errorFixedDim() : this.errorFixed(),
+      contrastCurve: (s) => getCurve(7),
+    });
+    return extendSpecVersion(super.onErrorFixed(), '2026', color2026);
+  }
+
+  override onErrorFixedVariant(): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: 'on_error_fixed_variant',
+      palette: (s) => s.errorPalette,
+      background: (s) => this.errorFixed().getTone(s) > 57 ?
+          this.errorFixedDim() : this.errorFixed(),
+      contrastCurve: (s) => getCurve(4.5),
+    });
+    return extendSpecVersion(super.onErrorFixedVariant(), '2026', color2026);
+  }
+
+  override inverseError(): DynamicColor {
+    // CMF retains the 2025 inverse-primary rule, using its new inverse surface.
+    const color2026 = DynamicColor.fromPalette({
+      name: 'inverse_error',
+      palette: (s) => s.errorPalette,
+      tone: (s) => tMaxC(s.errorPalette),
+      background: (s) => this.inverseSurface(),
+      contrastCurve: (s) => s.platform === 'phone' ? getCurve(6) : getCurve(7),
+    });
+    return extendSpecVersion(super.inverseError(), '2026', color2026);
+  }
+
+  /////////////////////////////////////////////////////////////////
+  // Aeppic Extended Colors                                      //
+  /////////////////////////////////////////////////////////////////
+
+  // Follow CMF's primary family, using the extended palette's own seed.
+  // addExtendedColor uses TonalPalette.fromHct, so keyColor is the original
+  // (optionally harmonized) HCT, including its tone, not a synthesized key.
+  // Keep the 2025 definitions for schemes using an older spec.
+  override extended(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => {
+        const source = s.extendedPalette[name].keyColor;
+        return source.chroma <= 12 ? (s.isDark ? 80 : 40) : source.tone;
+      },
+      isBackground: true,
+      background: (s) => this.highestSurface(s),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) => s.platform === 'phone' ?
+          new ToneDeltaPair(
+              this.extendedContainer(name), this.extended(name), 5,
+              'relative_lighter', true, 'farther') :
+          undefined,
+    });
+    return extendSpecVersion(super.extended(name), '2026', color2026);
+  }
+
+  override extendedDim(name: string): DynamicColor {
+    const color2026 = Object.assign(this.extended(name).clone(), {
+      name: `${name}_dim`,
+    });
+    return extendSpecVersion(super.extendedDim(name), '2026', color2026);
+  }
+
+  override onExtended(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `on_${name}`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extended(name),
+      contrastCurve: (s) => getCurve(6),
+    });
+    return extendSpecVersion(super.onExtended(name), '2026', color2026);
+  }
+
+  override extendedContainer(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `${name}_container`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => {
+        const source = s.extendedPalette[name].keyColor;
+        if (!s.isDark && source.chroma <= 12) {
+          return 90;
+        }
+        return source.tone > 55 ? clampDouble(61, 90, source.tone) :
+                                  clampDouble(30, 49, source.tone);
+      },
+      isBackground: true,
+      background: (s) => this.highestSurface(s),
+      contrastCurve: (s) => s.contrastLevel > 0 ? getCurve(1.5) : undefined,
+    });
+    return extendSpecVersion(super.extendedContainer(name), '2026', color2026);
+  }
+
+  override onExtendedContainer(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `on_${name}_container`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extendedContainer(name),
+      contrastCurve: (s) => getCurve(6),
+    });
+    return extendSpecVersion(super.onExtendedContainer(name), '2026', color2026);
+  }
+
+  override extendedFixed(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `${name}_fixed`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => this.extendedContainer(name).getTone(
+          Object.assign({}, s, {isDark: false, contrastLevel: 0})),
+      isBackground: true,
+      background: (s) => this.highestSurface(s),
+      contrastCurve: (s) => s.contrastLevel > 0 ? getCurve(1.5) : undefined,
+    });
+    return extendSpecVersion(super.extendedFixed(name), '2026', color2026);
+  }
+
+  override extendedFixedDim(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `${name}_fixed_dim`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => this.extendedFixed(name).getTone(s),
+      isBackground: true,
+      background: (s) => this.highestSurface(s),
+      toneDeltaPair: (s) => new ToneDeltaPair(
+          this.extendedFixedDim(name), this.extendedFixed(name), 5,
+          'darker', true, 'exact'),
+      contrastCurve: (s) => s.contrastLevel > 0 ? getCurve(1.5) : undefined,
+    });
+    return extendSpecVersion(super.extendedFixedDim(name), '2026', color2026);
+  }
+
+  override onExtendedFixed(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `on_${name}_fixed`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extendedFixed(name).getTone(s) > 57 ?
+          this.extendedFixedDim(name) : this.extendedFixed(name),
+      contrastCurve: (s) => getCurve(7),
+    });
+    return extendSpecVersion(super.onExtendedFixed(name), '2026', color2026);
+  }
+
+  override onExtendedFixedVariant(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `on_${name}_fixed_variant`,
+      palette: (s) => s.extendedPalette[name],
+      background: (s) => this.extendedFixed(name).getTone(s) > 57 ?
+          this.extendedFixedDim(name) : this.extendedFixed(name),
+      contrastCurve: (s) => getCurve(4.5),
+    });
+    return extendSpecVersion(
+        super.onExtendedFixedVariant(name), '2026', color2026);
+  }
+
+  override inverseExtended(name: string): DynamicColor {
+    const color2026 = DynamicColor.fromPalette({
+      name: `inverse_${name}`,
+      palette: (s) => s.extendedPalette[name],
+      tone: (s) => tMaxC(s.extendedPalette[name]),
+      background: (s) => this.inverseSurface(),
+      contrastCurve: (s) => s.platform === 'phone' ? getCurve(6) : getCurve(7),
+    });
+    return extendSpecVersion(super.inverseExtended(name), '2026', color2026);
+  }
+
+  /////////////////////////////////////////////////////////////////
   // Remapped Colors                                             //
   /////////////////////////////////////////////////////////////////
 

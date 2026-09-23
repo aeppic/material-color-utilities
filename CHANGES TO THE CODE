@@ -13,3 +13,8 @@ General: Added .js extension to every import. Changed semicolons and formatting.
 Preserved extended semantic colors, extra error roles, Hct hex helpers, exported option/validation helpers, and string-valued variants (including new CMF).
 Added .js extensions to the new 2026/CMF imports and kept the color_spec export and isSpecVersion validation, now including 2026.
 DynamicScheme.clone preserves the complete source-color list. Extended-color initialization owns its array so construction and cloning do not append duplicate entries to caller-owned arrays.
+
+2026-09-23: Added explicit 2026 overrides for the custom extended family and completed error family in color_spec_2026.ts.
+Extended colors follow CMF primary calculations using their own optionally harmonized seed (stored as the extended palette keyColor), while retaining the host scheme's surfaces. Extended dim aliases the base role, like CMF's built-in dim roles.
+Error fixed roles use CMF fixed constraints with the error container; custom inverse roles follow CMF's retained inverse-primary rule. Older specs retain the existing 2025 custom definitions.
+Added surfaceVariant to MaterialDynamicColors.allColors so token/CSS enumeration includes it.

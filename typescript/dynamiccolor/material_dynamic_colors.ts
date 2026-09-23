@@ -347,6 +347,7 @@ export class MaterialDynamicColors {
     this.surfaceContainerHigh(),
     this.surfaceContainerHighest(),
     this.onSurface(),
+    this.surfaceVariant(),
     this.onSurfaceVariant(),
     this.outline(),
     this.outlineVariant(),
