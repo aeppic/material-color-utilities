@@ -16,6 +16,7 @@
  */
 
 import { ColorSpecDelegateImpl2026 } from './color_spec_2026.js'
+import { ColorSpecDelegateImpl2026Custom } from './color_spec_2026_custom.js'
 import { DynamicColor } from './dynamic_color.js'
 import type { DynamicScheme } from './dynamic_scheme.js'
 
@@ -28,6 +29,18 @@ export class MaterialDynamicColors {
   static contentAccentToneDelta = 15.0
 
   private static readonly colorSpec = new ColorSpecDelegateImpl2026()
+  private static readonly customColorSpec = new ColorSpecDelegateImpl2026Custom()
+
+  private static profiledSurfaceContainerLowest(): DynamicColor {
+    const standard = MaterialDynamicColors.colorSpec.surfaceContainerLowest()
+    const custom = MaterialDynamicColors.customColorSpec.surfaceContainerLowest()
+    return DynamicColor.fromPalette({
+      ...standard,
+      tone: (scheme) => scheme.profile === 'cmf-2026-custom'
+        ? custom.tone(scheme)
+        : standard.tone(scheme),
+    })
+  }
 
   highestSurface(s: DynamicScheme): DynamicColor {
     return MaterialDynamicColors.colorSpec.highestSurface(s)
@@ -86,7 +99,7 @@ export class MaterialDynamicColors {
   }
 
   surfaceContainerLowest(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerLowest()
+    return MaterialDynamicColors.profiledSurfaceContainerLowest()
   }
 
   surfaceContainerLow(): DynamicColor {
@@ -441,7 +454,7 @@ export class MaterialDynamicColors {
 
   /** @deprecated Use surfaceContainerLowest() instead. */
   static surfaceContainerLowest =
-    MaterialDynamicColors.colorSpec.surfaceContainerLowest()
+    MaterialDynamicColors.profiledSurfaceContainerLowest()
 
   /** @deprecated Use surfaceContainerLow() instead. */
   static surfaceContainerLow =

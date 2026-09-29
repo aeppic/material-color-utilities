@@ -16,7 +16,7 @@
  */
 
 import {SpecVersion} from '../dynamiccolor/color_spec.js';
-import {DynamicScheme, Platform} from '../dynamiccolor/dynamic_scheme.js';
+import {CmfProfile, DynamicScheme, Platform} from '../dynamiccolor/dynamic_scheme.js';
 import {Variant} from '../dynamiccolor/variant.js';
 import {Hct} from '../hct/hct.js';
 import {TonalPalette} from '../palettes/tonal_palette.js';
@@ -27,14 +27,15 @@ import {TonalPalette} from '../palettes/tonal_palette.js';
 export class SchemeCmf extends DynamicScheme {
   constructor(
       sourceColorHct: Hct, isDark: boolean, contrastLevel: number,
-      specVersion?: SpecVersion, platform?: Platform);
+      specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile);
   constructor(
       sourceColorHcts: Hct[], isDark: boolean, contrastLevel: number,
-      specVersion?: SpecVersion, platform?: Platform);
+      specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile);
   constructor(
       sourceColorOrList: Hct|Hct[], isDark: boolean, contrastLevel: number,
       specVersion: SpecVersion = '2026',
-      platform: Platform = DynamicScheme.DEFAULT_PLATFORM) {
+      platform: Platform = DynamicScheme.DEFAULT_PLATFORM,
+      profile: CmfProfile = 'cmf-2026') {
     if (specVersion !== '2026') {
       throw new Error('SchemeCmf can only be used with spec version 2026.');
     }
@@ -68,6 +69,7 @@ export class SchemeCmf extends DynamicScheme {
       isDark,
       platform,
       specVersion,
+      profile,
       primaryPalette,
       secondaryPalette,
       tertiaryPalette,

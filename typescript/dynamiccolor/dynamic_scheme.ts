@@ -37,6 +37,13 @@ export function isPlatform(value: string): value is Platform {
   return VALID_PLATFORM.includes(value as Platform)
 }
 
+/** The package's CMF 2026 calculation profiles. */
+export type CmfProfile = 'cmf-2026' | 'cmf-2026-custom'
+const VALID_CMF_PROFILES: CmfProfile[] = ['cmf-2026', 'cmf-2026-custom']
+export function isCmfProfile(value: string): value is CmfProfile {
+  return VALID_CMF_PROFILES.includes(value as CmfProfile)
+}
+
 /**
  * @param sourceColorHct The primary source color of the theme as an HCT color.
  * @param sourceColorHcts The source colors of the theme as HCT colors.
@@ -81,6 +88,8 @@ export interface DynamicSchemeOptions {
   isDark: boolean
   platform?: Platform
   specVersion?: SpecVersion
+  /** Optional CMF 2026 role-calculation profile. */
+  profile?: CmfProfile
   primaryPalette?: TonalPalette
   secondaryPalette?: TonalPalette
   tertiaryPalette?: TonalPalette
@@ -193,6 +202,9 @@ export class DynamicScheme {
   /** The version of the design spec that this scheme is based on. */
   readonly specVersion: SpecVersion
 
+  /** CMF 2026 profile; undefined for other variants or spec versions. */
+  readonly profile?: CmfProfile
+
   /**
    * Given a tone, produces a color. Hue and chroma of the
    * color are specified in the design specification of the variant. Usually
@@ -281,6 +293,15 @@ export class DynamicScheme {
       args.specVersion ?? '2021',
       this.variant
     )
+    if (args.profile && !isCmfProfile(args.profile)) {
+      throw new Error(`Unknown CMF profile: ${args.profile}`)
+    }
+    if (args.profile && (this.variant !== Variant.CMF || this.specVersion !== '2026')) {
+      throw new Error('CMF profiles require the CMF variant and spec version 2026')
+    }
+    this.profile = this.variant === Variant.CMF && this.specVersion === '2026'
+      ? args.profile ?? 'cmf-2026'
+      : undefined
     this.primaryPalette =
       args.primaryPalette ??
       getSpec(this.specVersion).getPrimaryPalette(
