@@ -55,10 +55,15 @@ export class SchemeCmf extends DynamicScheme {
             sourceColorHct.hue, sourceColorHct.chroma * 0.75) :
         TonalPalette.fromHueAndChroma(
             secondarySourceColorHct.hue, secondarySourceColorHct.chroma);
+    // Keep the custom profile's neutral families no more colorful than 2025
+    // Tonal Spot on phone, without increasing chroma for muted source colors.
+    const neutralChroma = sourceColorHct.chroma * 0.2;
+    const profileNeutralChroma = profile === 'cmf-2026-custom' ?
+        Math.min(neutralChroma, 5.0) : neutralChroma;
     const neutralPalette = TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue, sourceColorHct.chroma * 0.2);
+        sourceColorHct.hue, profileNeutralChroma);
     const neutralVariantPalette = TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue, sourceColorHct.chroma * 0.2);
+        sourceColorHct.hue, profileNeutralChroma);
     const errorPalette = TonalPalette.fromHueAndChroma(
         SchemeCmf.getErrorHue(sourceColorHct.hue, secondarySourceColorHct.hue),
         Math.max(sourceColorHct.chroma, 50.0));
