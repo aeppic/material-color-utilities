@@ -27,17 +27,32 @@ import {TonalPalette} from '../palettes/tonal_palette.js';
 export class SchemeCmf extends DynamicScheme {
   constructor(
       sourceColorHct: Hct, isDark: boolean, contrastLevel: number,
-      specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile);
+      specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile,
+      neutralChromaPercent?: number);
   constructor(
       sourceColorHcts: Hct[], isDark: boolean, contrastLevel: number,
-      specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile);
+      specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile,
+      neutralChromaPercent?: number);
   constructor(
       sourceColorOrList: Hct|Hct[], isDark: boolean, contrastLevel: number,
       specVersion: SpecVersion = '2026',
       platform: Platform = DynamicScheme.DEFAULT_PLATFORM,
-      profile: CmfProfile = 'cmf-2026') {
+      profile: CmfProfile = 'cmf-2026',
+      neutralChromaPercent?: number) {
     if (specVersion !== '2026') {
       throw new Error('SchemeCmf can only be used with spec version 2026.');
+    }
+    if (neutralChromaPercent !== undefined && profile !== 'cmf-2026-custom') {
+      throw new Error('neutralChromaPercent requires the cmf-2026-custom profile');
+    }
+    const resolvedNeutralChromaPercent = profile === 'cmf-2026-custom' ?
+        neutralChromaPercent ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT :
+        undefined;
+    if (resolvedNeutralChromaPercent !== undefined &&
+        (!Number.isFinite(resolvedNeutralChromaPercent) ||
+         resolvedNeutralChromaPercent < 0 ||
+         resolvedNeutralChromaPercent > 100)) {
+      throw new RangeError('neutralChromaPercent must be a finite number from 0 to 100');
     }
     const isArray = Array.isArray(sourceColorOrList);
     const sourceColorHct = isArray ? sourceColorOrList[0] : sourceColorOrList;
@@ -55,15 +70,14 @@ export class SchemeCmf extends DynamicScheme {
             sourceColorHct.hue, sourceColorHct.chroma * 0.75) :
         TonalPalette.fromHueAndChroma(
             secondarySourceColorHct.hue, secondarySourceColorHct.chroma);
-    // Keep the custom profile's neutral families no more colorful than 2025
-    // Tonal Spot on phone, without increasing chroma for muted source colors.
-    const neutralChroma = sourceColorHct.chroma * 0.2;
-    const profileNeutralChroma = profile === 'cmf-2026-custom' ?
-        Math.min(neutralChroma, 5.0) : neutralChroma;
+    const neutralChroma = profile === 'cmf-2026-custom' ?
+        Math.min(sourceColorHct.chroma, 50) *
+            (resolvedNeutralChromaPercent! / 100) :
+        sourceColorHct.chroma * 0.2;
     const neutralPalette = TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue, profileNeutralChroma);
+        sourceColorHct.hue, neutralChroma);
     const neutralVariantPalette = TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue, profileNeutralChroma);
+        sourceColorHct.hue, neutralChroma);
     const errorPalette = TonalPalette.fromHueAndChroma(
         SchemeCmf.getErrorHue(sourceColorHct.hue, secondarySourceColorHct.hue),
         Math.max(sourceColorHct.chroma, 50.0));
@@ -75,6 +89,7 @@ export class SchemeCmf extends DynamicScheme {
       platform,
       specVersion,
       profile,
+      neutralChromaPercent: resolvedNeutralChromaPercent,
       primaryPalette,
       secondaryPalette,
       tertiaryPalette,

@@ -90,6 +90,8 @@ export interface DynamicSchemeOptions {
   specVersion?: SpecVersion
   /** Optional CMF 2026 role-calculation profile. */
   profile?: CmfProfile
+  /** Percentage of source chroma used for custom CMF neutral palettes (0–100). */
+  neutralChromaPercent?: number
   primaryPalette?: TonalPalette
   secondaryPalette?: TonalPalette
   tertiaryPalette?: TonalPalette
@@ -164,6 +166,7 @@ interface DynamicSchemePalettesDelegate {
 export class DynamicScheme {
   static readonly DEFAULT_SPEC_VERSION = '2021'
   static readonly DEFAULT_PLATFORM = 'phone'
+  static readonly DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT = 7
 
   /**
    * The source color of the theme as an HCT color.
@@ -204,6 +207,9 @@ export class DynamicScheme {
 
   /** CMF 2026 profile; undefined for other variants or spec versions. */
   readonly profile?: CmfProfile
+
+  /** Custom CMF neutral-palette source-chroma percentage; undefined for other profiles. */
+  readonly neutralChromaPercent?: number
 
   /**
    * Given a tone, produces a color. Hue and chroma of the
@@ -302,6 +308,16 @@ export class DynamicScheme {
     this.profile = this.variant === Variant.CMF && this.specVersion === '2026'
       ? args.profile ?? 'cmf-2026'
       : undefined
+    if (args.neutralChromaPercent !== undefined && this.profile !== 'cmf-2026-custom') {
+      throw new Error('neutralChromaPercent requires the cmf-2026-custom profile')
+    }
+    const neutralChromaPercent = this.profile === 'cmf-2026-custom'
+      ? args.neutralChromaPercent ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT
+      : undefined
+    if (neutralChromaPercent !== undefined && (!Number.isFinite(neutralChromaPercent) || neutralChromaPercent < 0 || neutralChromaPercent > 100)) {
+      throw new RangeError('neutralChromaPercent must be a finite number from 0 to 100')
+    }
+    this.neutralChromaPercent = neutralChromaPercent
     this.primaryPalette =
       args.primaryPalette ??
       getSpec(this.specVersion).getPrimaryPalette(
@@ -406,6 +422,8 @@ export class DynamicScheme {
       isDark: this.isDark,
       platform: this.platform,
       specVersion: this.specVersion,
+      profile: this.profile,
+      neutralChromaPercent: this.neutralChromaPercent,
       primaryPalette: this.primaryPalette,
       secondaryPalette: this.secondaryPalette,
       tertiaryPalette: this.tertiaryPalette,
