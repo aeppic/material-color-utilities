@@ -31,9 +31,10 @@ export class MaterialDynamicColors {
   private static readonly colorSpec = new ColorSpecDelegateImpl2026()
   private static readonly customColorSpec = new ColorSpecDelegateImpl2026Custom()
 
-  private static profiledSurfaceContainerLowest(): DynamicColor {
-    const standard = MaterialDynamicColors.colorSpec.surfaceContainerLowest()
-    const custom = MaterialDynamicColors.customColorSpec.surfaceContainerLowest()
+  private static profiledSurfaceContainer(
+    standard: DynamicColor,
+    custom: DynamicColor,
+  ): DynamicColor {
     return DynamicColor.fromPalette({
       ...standard,
       tone: (scheme) => scheme.profile === 'cmf-2026-custom'
@@ -99,23 +100,38 @@ export class MaterialDynamicColors {
   }
 
   surfaceContainerLowest(): DynamicColor {
-    return MaterialDynamicColors.profiledSurfaceContainerLowest()
+    return MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerLowest(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerLowest(),
+    )
   }
 
   surfaceContainerLow(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerLow()
+    return MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerLow(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerLow(),
+    )
   }
 
   surfaceContainer(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainer()
+    return MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainer(),
+      MaterialDynamicColors.customColorSpec.surfaceContainer(),
+    )
   }
 
   surfaceContainerHigh(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerHigh()
+    return MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerHigh(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerHigh(),
+    )
   }
 
   surfaceContainerHighest(): DynamicColor {
-    return MaterialDynamicColors.colorSpec.surfaceContainerHighest()
+    return MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerHighest(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerHighest(),
+    )
   }
 
   onSurface(): DynamicColor {
@@ -454,22 +470,37 @@ export class MaterialDynamicColors {
 
   /** @deprecated Use surfaceContainerLowest() instead. */
   static surfaceContainerLowest =
-    MaterialDynamicColors.profiledSurfaceContainerLowest()
+    MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerLowest(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerLowest(),
+    )
 
   /** @deprecated Use surfaceContainerLow() instead. */
   static surfaceContainerLow =
-    MaterialDynamicColors.colorSpec.surfaceContainerLow()
+    MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerLow(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerLow(),
+    )
 
   /** @deprecated Use surfaceContainer() instead. */
-  static surfaceContainer = MaterialDynamicColors.colorSpec.surfaceContainer()
+  static surfaceContainer = MaterialDynamicColors.profiledSurfaceContainer(
+    MaterialDynamicColors.colorSpec.surfaceContainer(),
+    MaterialDynamicColors.customColorSpec.surfaceContainer(),
+  )
 
   /** @deprecated Use surfaceContainerHigh() instead. */
   static surfaceContainerHigh =
-    MaterialDynamicColors.colorSpec.surfaceContainerHigh()
+    MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerHigh(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerHigh(),
+    )
 
   /** @deprecated Use surfaceContainerHighest() instead. */
   static surfaceContainerHighest =
-    MaterialDynamicColors.colorSpec.surfaceContainerHighest()
+    MaterialDynamicColors.profiledSurfaceContainer(
+      MaterialDynamicColors.colorSpec.surfaceContainerHighest(),
+      MaterialDynamicColors.customColorSpec.surfaceContainerHighest(),
+    )
 
   /** @deprecated Use onSurface() instead. */
   static onSurface = MaterialDynamicColors.colorSpec.onSurface()

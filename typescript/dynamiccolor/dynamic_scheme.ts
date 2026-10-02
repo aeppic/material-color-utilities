@@ -92,6 +92,8 @@ export interface DynamicSchemeOptions {
   profile?: CmfProfile
   /** Percentage of source chroma used for custom CMF neutral palettes (0–100). */
   neutralChromaPercent?: number
+  /** Maximum source chroma used for custom CMF neutral palettes. */
+  neutralChromaCap?: number
   primaryPalette?: TonalPalette
   secondaryPalette?: TonalPalette
   tertiaryPalette?: TonalPalette
@@ -166,7 +168,8 @@ interface DynamicSchemePalettesDelegate {
 export class DynamicScheme {
   static readonly DEFAULT_SPEC_VERSION = '2021'
   static readonly DEFAULT_PLATFORM = 'phone'
-  static readonly DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT = 7
+  static readonly DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT = 13
+  static readonly DEFAULT_CMF_NEUTRAL_CHROMA_CAP = 50
 
   /**
    * The source color of the theme as an HCT color.
@@ -210,6 +213,9 @@ export class DynamicScheme {
 
   /** Custom CMF neutral-palette source-chroma percentage; undefined for other profiles. */
   readonly neutralChromaPercent?: number
+
+  /** Custom CMF neutral-palette source-chroma cap; undefined for other profiles. */
+  readonly neutralChromaCap?: number
 
   /**
    * Given a tone, produces a color. Hue and chroma of the
@@ -311,13 +317,23 @@ export class DynamicScheme {
     if (args.neutralChromaPercent !== undefined && this.profile !== 'cmf-2026-custom') {
       throw new Error('neutralChromaPercent requires the cmf-2026-custom profile')
     }
+    if (args.neutralChromaCap !== undefined && this.profile !== 'cmf-2026-custom') {
+      throw new Error('neutralChromaCap requires the cmf-2026-custom profile')
+    }
     const neutralChromaPercent = this.profile === 'cmf-2026-custom'
       ? args.neutralChromaPercent ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT
+      : undefined
+    const neutralChromaCap = this.profile === 'cmf-2026-custom'
+      ? args.neutralChromaCap ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_CAP
       : undefined
     if (neutralChromaPercent !== undefined && (!Number.isFinite(neutralChromaPercent) || neutralChromaPercent < 0 || neutralChromaPercent > 100)) {
       throw new RangeError('neutralChromaPercent must be a finite number from 0 to 100')
     }
+    if (neutralChromaCap !== undefined && (!Number.isFinite(neutralChromaCap) || neutralChromaCap < 0)) {
+      throw new RangeError('neutralChromaCap must be a finite non-negative number')
+    }
     this.neutralChromaPercent = neutralChromaPercent
+    this.neutralChromaCap = neutralChromaCap
     this.primaryPalette =
       args.primaryPalette ??
       getSpec(this.specVersion).getPrimaryPalette(
@@ -424,6 +440,7 @@ export class DynamicScheme {
       specVersion: this.specVersion,
       profile: this.profile,
       neutralChromaPercent: this.neutralChromaPercent,
+      neutralChromaCap: this.neutralChromaCap,
       primaryPalette: this.primaryPalette,
       secondaryPalette: this.secondaryPalette,
       tertiaryPalette: this.tertiaryPalette,

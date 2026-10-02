@@ -28,31 +28,43 @@ export class SchemeCmf extends DynamicScheme {
   constructor(
       sourceColorHct: Hct, isDark: boolean, contrastLevel: number,
       specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile,
-      neutralChromaPercent?: number);
+      neutralChromaPercent?: number, neutralChromaCap?: number);
   constructor(
       sourceColorHcts: Hct[], isDark: boolean, contrastLevel: number,
       specVersion?: SpecVersion, platform?: Platform, profile?: CmfProfile,
-      neutralChromaPercent?: number);
+      neutralChromaPercent?: number, neutralChromaCap?: number);
   constructor(
       sourceColorOrList: Hct|Hct[], isDark: boolean, contrastLevel: number,
       specVersion: SpecVersion = '2026',
       platform: Platform = DynamicScheme.DEFAULT_PLATFORM,
       profile: CmfProfile = 'cmf-2026',
-      neutralChromaPercent?: number) {
+      neutralChromaPercent?: number,
+      neutralChromaCap?: number) {
     if (specVersion !== '2026') {
       throw new Error('SchemeCmf can only be used with spec version 2026.');
     }
     if (neutralChromaPercent !== undefined && profile !== 'cmf-2026-custom') {
       throw new Error('neutralChromaPercent requires the cmf-2026-custom profile');
     }
+    if (neutralChromaCap !== undefined && profile !== 'cmf-2026-custom') {
+      throw new Error('neutralChromaCap requires the cmf-2026-custom profile');
+    }
     const resolvedNeutralChromaPercent = profile === 'cmf-2026-custom' ?
         neutralChromaPercent ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT :
+        undefined;
+    const resolvedNeutralChromaCap = profile === 'cmf-2026-custom' ?
+        neutralChromaCap ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_CAP :
         undefined;
     if (resolvedNeutralChromaPercent !== undefined &&
         (!Number.isFinite(resolvedNeutralChromaPercent) ||
          resolvedNeutralChromaPercent < 0 ||
          resolvedNeutralChromaPercent > 100)) {
       throw new RangeError('neutralChromaPercent must be a finite number from 0 to 100');
+    }
+    if (resolvedNeutralChromaCap !== undefined &&
+        (!Number.isFinite(resolvedNeutralChromaCap) ||
+         resolvedNeutralChromaCap < 0)) {
+      throw new RangeError('neutralChromaCap must be a finite non-negative number');
     }
     const isArray = Array.isArray(sourceColorOrList);
     const sourceColorHct = isArray ? sourceColorOrList[0] : sourceColorOrList;
@@ -71,7 +83,7 @@ export class SchemeCmf extends DynamicScheme {
         TonalPalette.fromHueAndChroma(
             secondarySourceColorHct.hue, secondarySourceColorHct.chroma);
     const neutralChroma = profile === 'cmf-2026-custom' ?
-        Math.min(sourceColorHct.chroma, 50) *
+        Math.min(sourceColorHct.chroma, resolvedNeutralChromaCap!) *
             (resolvedNeutralChromaPercent! / 100) :
         sourceColorHct.chroma * 0.2;
     const neutralPalette = TonalPalette.fromHueAndChroma(
@@ -90,6 +102,7 @@ export class SchemeCmf extends DynamicScheme {
       specVersion,
       profile,
       neutralChromaPercent: resolvedNeutralChromaPercent,
+      neutralChromaCap: resolvedNeutralChromaCap,
       primaryPalette,
       secondaryPalette,
       tertiaryPalette,
