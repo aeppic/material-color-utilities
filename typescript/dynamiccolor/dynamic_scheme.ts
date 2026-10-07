@@ -77,7 +77,7 @@ export function isCmfProfile(value: string): value is CmfProfile {
 export interface ExtendedColor {
   name: string
   color: Hct
-  harmonization: boolean
+  harmonize?: boolean
 }
 
 export interface DynamicSchemeOptions {
@@ -400,7 +400,7 @@ export class DynamicScheme {
   }
 
   addExtendedColor(extendedColor: ExtendedColor) {
-    const sourceColor: Hct = extendedColor.harmonization
+    const sourceColor: Hct = extendedColor.harmonize
       ? Hct.fromInt(
           Blend.harmonize(
             extendedColor.color.toInt(),
