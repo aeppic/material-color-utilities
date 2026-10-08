@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ColorSpecDelegateImpl2026 } from './color_spec_2026.js'
+import { ColorSpecDelegateImplCustom } from './color_spec_custom.js'
 import { DynamicColor } from './dynamic_color.js'
 import type { DynamicScheme } from './dynamic_scheme.js'
 
@@ -27,7 +27,7 @@ import type { DynamicScheme } from './dynamic_scheme.js'
 export class MaterialDynamicColors {
   static contentAccentToneDelta = 15.0
 
-  private static readonly colorSpec = new ColorSpecDelegateImpl2026()
+  private static readonly colorSpec = new ColorSpecDelegateImplCustom()
 
   highestSurface(s: DynamicScheme): DynamicColor {
     return MaterialDynamicColors.colorSpec.highestSurface(s)
