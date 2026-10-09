@@ -17,10 +17,15 @@
 #include "cpp/dynamiccolor/material_dynamic_colors.h"
 
 #include <cmath>
+#include <functional>
+#include <optional>
+#include <string>
 
 #include "cpp/cam/cam.h"
 #include "cpp/cam/hct.h"
 #include "cpp/dislike/dislike.h"
+#include "cpp/dynamiccolor/color_spec_custom.h"
+#include "cpp/dynamiccolor/color_spec_internal.h"
 #include "cpp/dynamiccolor/contrast_curve.h"
 #include "cpp/dynamiccolor/dynamic_color.h"
 #include "cpp/dynamiccolor/dynamic_scheme.h"
@@ -141,6 +146,31 @@ double FindDesiredChromaByTone(double hue, double chroma, double tone,
 }
 
 constexpr double kContentAccentToneDelta = 15.0;
+
+DynamicColor Official(DynamicColor color) {
+  std::string name = color.name_;
+  color.versioned_color_ = [name](const DynamicScheme& s) {
+    return s.spec_version == SpecVersion::k2026 ? GetColor2026(name)
+                                                : GetColor2025(name);
+  };
+  return color;
+}
+
+DynamicColor OfficialColor(
+    std::string name,
+    std::function<TonalPalette(const DynamicScheme&)> palette,
+    std::function<double(const DynamicScheme&)> tone, bool is_background,
+    std::optional<std::function<DynamicColor(const DynamicScheme&)>> background,
+    std::optional<std::function<DynamicColor(const DynamicScheme&)>>
+        second_background,
+    std::optional<ContrastCurve> contrast_curve,
+    std::optional<std::function<ToneDeltaPair(const DynamicScheme&)>>
+        tone_delta_pair) {
+  return Official(DynamicColor(name, palette, tone, is_background, background,
+                               second_background, contrast_curve,
+                               tone_delta_pair));
+}
+
 DynamicColor highestSurface(const DynamicScheme& s) {
   return s.is_dark ? MaterialDynamicColors::SurfaceBright()
                    : MaterialDynamicColors::SurfaceDim();
@@ -148,56 +178,65 @@ DynamicColor highestSurface(const DynamicScheme& s) {
 
 // Compatibility Keys Colors for Android
 DynamicColor MaterialDynamicColors::PrimaryPaletteKeyColor() {
-  return DynamicColor::FromPalette(
+  return Official(DynamicColor::FromPalette(
       "primary_palette_key_color",
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
       [](const DynamicScheme& s) -> double {
         return s.primary_palette.get_key_color().get_tone();
-      });
+      }));
 }
 
 DynamicColor MaterialDynamicColors::SecondaryPaletteKeyColor() {
-  return DynamicColor::FromPalette(
+  return Official(DynamicColor::FromPalette(
       "secondary_palette_key_color",
       [](const DynamicScheme& s) -> TonalPalette {
         return s.secondary_palette;
       },
       [](const DynamicScheme& s) -> double {
         return s.secondary_palette.get_key_color().get_tone();
-      });
+      }));
 }
 
 DynamicColor MaterialDynamicColors::TertiaryPaletteKeyColor() {
-  return DynamicColor::FromPalette(
+  return Official(DynamicColor::FromPalette(
       "tertiary_palette_key_color",
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
       [](const DynamicScheme& s) -> double {
         return s.tertiary_palette.get_key_color().get_tone();
-      });
+      }));
 }
 
 DynamicColor MaterialDynamicColors::NeutralPaletteKeyColor() {
-  return DynamicColor::FromPalette(
+  return Official(DynamicColor::FromPalette(
       "neutral_palette_key_color",
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
       [](const DynamicScheme& s) -> double {
         return s.neutral_palette.get_key_color().get_tone();
-      });
+      }));
 }
 
 DynamicColor MaterialDynamicColors::NeutralVariantPaletteKeyColor() {
-  return DynamicColor::FromPalette(
+  return Official(DynamicColor::FromPalette(
       "neutral_variant_palette_key_color",
       [](const DynamicScheme& s) -> TonalPalette {
         return s.neutral_variant_palette;
       },
       [](const DynamicScheme& s) -> double {
         return s.neutral_variant_palette.get_key_color().get_tone();
-      });
+      }));
+}
+
+DynamicColor MaterialDynamicColors::ErrorPaletteKeyColor() {
+  return Official(DynamicColor::FromPalette(
+      "error_palette_key_color",
+      [](const DynamicScheme& s) -> TonalPalette { return s.error_palette; },
+      [](const DynamicScheme& s) -> double {
+        return s.error_palette.get_key_color().get_tone();
+      }));
 }
 
 DynamicColor MaterialDynamicColors::Background() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "background",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -211,7 +250,7 @@ DynamicColor MaterialDynamicColors::Background() {
 }
 
 DynamicColor MaterialDynamicColors::OnBackground() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_background",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -226,7 +265,7 @@ DynamicColor MaterialDynamicColors::OnBackground() {
 }
 
 DynamicColor MaterialDynamicColors::Surface() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -240,7 +279,7 @@ DynamicColor MaterialDynamicColors::Surface() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceDim() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_dim",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -258,7 +297,7 @@ DynamicColor MaterialDynamicColors::SurfaceDim() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceBright() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_bright",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -276,7 +315,7 @@ DynamicColor MaterialDynamicColors::SurfaceBright() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceContainerLowest() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_container_lowest",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -294,7 +333,7 @@ DynamicColor MaterialDynamicColors::SurfaceContainerLowest() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceContainerLow() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_container_low",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -313,7 +352,7 @@ DynamicColor MaterialDynamicColors::SurfaceContainerLow() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_container",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -332,7 +371,7 @@ DynamicColor MaterialDynamicColors::SurfaceContainer() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceContainerHigh() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_container_high",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -351,7 +390,7 @@ DynamicColor MaterialDynamicColors::SurfaceContainerHigh() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceContainerHighest() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_container_highest",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -370,7 +409,7 @@ DynamicColor MaterialDynamicColors::SurfaceContainerHighest() {
 }
 
 DynamicColor MaterialDynamicColors::OnSurface() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_surface",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -385,7 +424,7 @@ DynamicColor MaterialDynamicColors::OnSurface() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceVariant() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_variant",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -401,7 +440,7 @@ DynamicColor MaterialDynamicColors::SurfaceVariant() {
 }
 
 DynamicColor MaterialDynamicColors::OnSurfaceVariant() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_surface_variant",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -418,7 +457,7 @@ DynamicColor MaterialDynamicColors::OnSurfaceVariant() {
 }
 
 DynamicColor MaterialDynamicColors::InverseSurface() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "inverse_surface",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -432,7 +471,7 @@ DynamicColor MaterialDynamicColors::InverseSurface() {
 }
 
 DynamicColor MaterialDynamicColors::InverseOnSurface() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "inverse_on_surface",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -447,7 +486,7 @@ DynamicColor MaterialDynamicColors::InverseOnSurface() {
 }
 
 DynamicColor MaterialDynamicColors::Outline() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "outline",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -464,7 +503,7 @@ DynamicColor MaterialDynamicColors::Outline() {
 }
 
 DynamicColor MaterialDynamicColors::OutlineVariant() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "outline_variant",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -481,7 +520,7 @@ DynamicColor MaterialDynamicColors::OutlineVariant() {
 }
 
 DynamicColor MaterialDynamicColors::Shadow() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "shadow",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -494,7 +533,7 @@ DynamicColor MaterialDynamicColors::Shadow() {
 }
 
 DynamicColor MaterialDynamicColors::Scrim() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "scrim",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.neutral_palette; },
@@ -507,7 +546,7 @@ DynamicColor MaterialDynamicColors::Scrim() {
 }
 
 DynamicColor MaterialDynamicColors::SurfaceTint() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "surface_tint",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -521,7 +560,7 @@ DynamicColor MaterialDynamicColors::SurfaceTint() {
 }
 
 DynamicColor MaterialDynamicColors::Primary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "primary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -544,8 +583,15 @@ DynamicColor MaterialDynamicColors::Primary() {
       });
 }
 
+DynamicColor MaterialDynamicColors::PrimaryDim() {
+  return Official(DynamicColor::FromPalette(
+      "primary_dim",
+      [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
+      [](const DynamicScheme&) -> double { return 50.0; }));
+}
+
 DynamicColor MaterialDynamicColors::OnPrimary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_primary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -565,7 +611,7 @@ DynamicColor MaterialDynamicColors::OnPrimary() {
 }
 
 DynamicColor MaterialDynamicColors::PrimaryContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "primary_container",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -592,7 +638,7 @@ DynamicColor MaterialDynamicColors::PrimaryContainer() {
 }
 
 DynamicColor MaterialDynamicColors::OnPrimaryContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */
       "on_primary_container",
       /* palette= */
@@ -616,7 +662,7 @@ DynamicColor MaterialDynamicColors::OnPrimaryContainer() {
 }
 
 DynamicColor MaterialDynamicColors::InversePrimary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "inverse_primary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -631,7 +677,7 @@ DynamicColor MaterialDynamicColors::InversePrimary() {
 }
 
 DynamicColor MaterialDynamicColors::Secondary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "secondary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -651,8 +697,17 @@ DynamicColor MaterialDynamicColors::Secondary() {
       });
 }
 
+DynamicColor MaterialDynamicColors::SecondaryDim() {
+  return Official(DynamicColor::FromPalette(
+      "secondary_dim",
+      [](const DynamicScheme& s) -> TonalPalette {
+        return s.secondary_palette;
+      },
+      [](const DynamicScheme&) -> double { return 50.0; }));
+}
+
 DynamicColor MaterialDynamicColors::OnSecondary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_secondary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -675,7 +730,7 @@ DynamicColor MaterialDynamicColors::OnSecondary() {
 }
 
 DynamicColor MaterialDynamicColors::SecondaryContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "secondary_container",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -707,7 +762,7 @@ DynamicColor MaterialDynamicColors::SecondaryContainer() {
 }
 
 DynamicColor MaterialDynamicColors::OnSecondaryContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */
       "on_secondary_container",
       /* palette= */
@@ -735,7 +790,7 @@ DynamicColor MaterialDynamicColors::OnSecondaryContainer() {
 }
 
 DynamicColor MaterialDynamicColors::Tertiary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "tertiary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -758,8 +813,15 @@ DynamicColor MaterialDynamicColors::Tertiary() {
       });
 }
 
+DynamicColor MaterialDynamicColors::TertiaryDim() {
+  return Official(DynamicColor::FromPalette(
+      "tertiary_dim",
+      [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
+      [](const DynamicScheme&) -> double { return 50.0; }));
+}
+
 DynamicColor MaterialDynamicColors::OnTertiary() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_tertiary",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -779,7 +841,7 @@ DynamicColor MaterialDynamicColors::OnTertiary() {
 }
 
 DynamicColor MaterialDynamicColors::TertiaryContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "tertiary_container",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -808,7 +870,7 @@ DynamicColor MaterialDynamicColors::TertiaryContainer() {
 }
 
 DynamicColor MaterialDynamicColors::OnTertiaryContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */
       "on_tertiary_container",
       /* palette= */
@@ -834,7 +896,7 @@ DynamicColor MaterialDynamicColors::OnTertiaryContainer() {
 }
 
 DynamicColor MaterialDynamicColors::Error() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "error",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.error_palette; },
@@ -852,8 +914,15 @@ DynamicColor MaterialDynamicColors::Error() {
       });
 }
 
+DynamicColor MaterialDynamicColors::ErrorDim() {
+  return Official(DynamicColor::FromPalette(
+      "error_dim",
+      [](const DynamicScheme& s) -> TonalPalette { return s.error_palette; },
+      [](const DynamicScheme&) -> double { return 50.0; }));
+}
+
 DynamicColor MaterialDynamicColors::OnError() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_error",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.error_palette; },
@@ -868,7 +937,7 @@ DynamicColor MaterialDynamicColors::OnError() {
 }
 
 DynamicColor MaterialDynamicColors::ErrorContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "error_container",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.error_palette; },
@@ -887,7 +956,7 @@ DynamicColor MaterialDynamicColors::ErrorContainer() {
 }
 
 DynamicColor MaterialDynamicColors::OnErrorContainer() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */
       "on_error_container",
       /* palette= */
@@ -908,7 +977,7 @@ DynamicColor MaterialDynamicColors::OnErrorContainer() {
 }
 
 DynamicColor MaterialDynamicColors::PrimaryFixed() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "primary_fixed",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -929,7 +998,7 @@ DynamicColor MaterialDynamicColors::PrimaryFixed() {
 }
 
 DynamicColor MaterialDynamicColors::PrimaryFixedDim() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "primary_fixed_dim",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -950,7 +1019,7 @@ DynamicColor MaterialDynamicColors::PrimaryFixedDim() {
 }
 
 DynamicColor MaterialDynamicColors::OnPrimaryFixed() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_primary_fixed",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -968,7 +1037,7 @@ DynamicColor MaterialDynamicColors::OnPrimaryFixed() {
 }
 
 DynamicColor MaterialDynamicColors::OnPrimaryFixedVariant() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_primary_fixed_variant",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.primary_palette; },
@@ -986,7 +1055,7 @@ DynamicColor MaterialDynamicColors::OnPrimaryFixedVariant() {
 }
 
 DynamicColor MaterialDynamicColors::SecondaryFixed() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "secondary_fixed",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -1009,7 +1078,7 @@ DynamicColor MaterialDynamicColors::SecondaryFixed() {
 }
 
 DynamicColor MaterialDynamicColors::SecondaryFixedDim() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "secondary_fixed_dim",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -1032,7 +1101,7 @@ DynamicColor MaterialDynamicColors::SecondaryFixedDim() {
 }
 
 DynamicColor MaterialDynamicColors::OnSecondaryFixed() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_secondary_fixed",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -1051,7 +1120,7 @@ DynamicColor MaterialDynamicColors::OnSecondaryFixed() {
 }
 
 DynamicColor MaterialDynamicColors::OnSecondaryFixedVariant() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_secondary_fixed_variant",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette {
@@ -1073,7 +1142,7 @@ DynamicColor MaterialDynamicColors::OnSecondaryFixedVariant() {
 }
 
 DynamicColor MaterialDynamicColors::TertiaryFixed() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "tertiary_fixed",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -1094,7 +1163,7 @@ DynamicColor MaterialDynamicColors::TertiaryFixed() {
 }
 
 DynamicColor MaterialDynamicColors::TertiaryFixedDim() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "tertiary_fixed_dim",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -1115,7 +1184,7 @@ DynamicColor MaterialDynamicColors::TertiaryFixedDim() {
 }
 
 DynamicColor MaterialDynamicColors::OnTertiaryFixed() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_tertiary_fixed",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -1133,7 +1202,7 @@ DynamicColor MaterialDynamicColors::OnTertiaryFixed() {
 }
 
 DynamicColor MaterialDynamicColors::OnTertiaryFixedVariant() {
-  return DynamicColor(
+  return OfficialColor(
       /* name= */ "on_tertiary_fixed_variant",
       /* palette= */
       [](const DynamicScheme& s) -> TonalPalette { return s.tertiary_palette; },
@@ -1148,6 +1217,71 @@ DynamicColor MaterialDynamicColors::OnTertiaryFixedVariant() {
       [](const DynamicScheme& s) -> DynamicColor { return TertiaryFixed(); },
       /* contrastCurve= */ ContrastCurve(3.0, 4.5, 7.0, 11.0),
       /* toneDeltaPair= */ nullopt);
+}
+
+DynamicColor MaterialDynamicColors::ErrorFixed() {
+  return GetCustomColor(CustomColorRole::kErrorFixed);
+}
+
+DynamicColor MaterialDynamicColors::ErrorFixedDim() {
+  return GetCustomColor(CustomColorRole::kErrorFixedDim);
+}
+
+DynamicColor MaterialDynamicColors::OnErrorFixed() {
+  return GetCustomColor(CustomColorRole::kOnErrorFixed);
+}
+
+DynamicColor MaterialDynamicColors::OnErrorFixedVariant() {
+  return GetCustomColor(CustomColorRole::kOnErrorFixedVariant);
+}
+
+DynamicColor MaterialDynamicColors::InverseError() {
+  return GetCustomColor(CustomColorRole::kInverseError);
+}
+
+DynamicColor MaterialDynamicColors::Extended(const std::string& name) {
+  return GetCustomColor(CustomColorRole::kExtended, name);
+}
+
+DynamicColor MaterialDynamicColors::ExtendedDim(const std::string& name) {
+  return GetCustomColor(CustomColorRole::kExtendedDim, name);
+}
+
+DynamicColor MaterialDynamicColors::OnExtended(const std::string& name) {
+  return GetCustomColor(CustomColorRole::kOnExtended, name);
+}
+
+DynamicColor MaterialDynamicColors::ExtendedContainer(
+    const std::string& name) {
+  return GetCustomColor(CustomColorRole::kExtendedContainer, name);
+}
+
+DynamicColor MaterialDynamicColors::OnExtendedContainer(
+    const std::string& name) {
+  return GetCustomColor(CustomColorRole::kOnExtendedContainer, name);
+}
+
+DynamicColor MaterialDynamicColors::ExtendedFixed(const std::string& name) {
+  return GetCustomColor(CustomColorRole::kExtendedFixed, name);
+}
+
+DynamicColor MaterialDynamicColors::ExtendedFixedDim(
+    const std::string& name) {
+  return GetCustomColor(CustomColorRole::kExtendedFixedDim, name);
+}
+
+DynamicColor MaterialDynamicColors::OnExtendedFixed(
+    const std::string& name) {
+  return GetCustomColor(CustomColorRole::kOnExtendedFixed, name);
+}
+
+DynamicColor MaterialDynamicColors::OnExtendedFixedVariant(
+    const std::string& name) {
+  return GetCustomColor(CustomColorRole::kOnExtendedFixedVariant, name);
+}
+
+DynamicColor MaterialDynamicColors::InverseExtended(const std::string& name) {
+  return GetCustomColor(CustomColorRole::kInverseExtended, name);
 }
 
 }  // namespace material_color_utilities

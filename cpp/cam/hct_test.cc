@@ -18,8 +18,8 @@
 
 #include <tuple>
 
-#include "testing/base/public/gmock.h"
-#include "testing/base/public/gunit.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include "cpp/cam/cam.h"
 #include "cpp/utils/utils.h"
 
@@ -32,6 +32,15 @@ using ::testing::Eq;
 using ::testing::Lt;
 using ::testing::TestWithParam;
 using ::testing::Values;
+
+TEST(HctTest, IdentifiesHueRanges) {
+  EXPECT_TRUE(Hct::IsBlue(250.0));
+  EXPECT_FALSE(Hct::IsBlue(270.0));
+  EXPECT_TRUE(Hct::IsYellow(105.0));
+  EXPECT_FALSE(Hct::IsYellow(125.0));
+  EXPECT_TRUE(Hct::IsCyan(170.0));
+  EXPECT_FALSE(Hct::IsCyan(207.0));
+}
 
 TEST(HctTest, LimitedToSRGB) {
   // Ensures that the HCT class can only represent sRGB colors.

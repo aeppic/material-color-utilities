@@ -29,6 +29,7 @@ enum class Variant {
   kContent,
   kRainbow,
   kFruitSalad,
+  kCmf,
 };
 
 }  // namespace material_color_utilities

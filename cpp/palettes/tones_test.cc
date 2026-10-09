@@ -16,7 +16,7 @@
 
 #include "cpp/palettes/tones.h"
 
-#include "testing/base/public/gunit.h"
+#include <gtest/gtest.h>
 #include "cpp/cam/hct.h"
 #include "cpp/utils/utils.h"
 

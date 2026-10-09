@@ -24,6 +24,9 @@ namespace material_color_utilities {
 
 struct SchemeVibrant : public DynamicScheme {
   SchemeVibrant(Hct source_color_hct, bool is_dark, double contrast_level);
+  SchemeVibrant(Hct source_color_hct, bool is_dark, double contrast_level,
+                SpecVersion spec_version,
+                Platform platform = Platform::kPhone);
   SchemeVibrant(Hct source_color_hct, bool is_dark);
 };
 

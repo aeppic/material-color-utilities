@@ -16,7 +16,7 @@
 
 #include "cpp/blend/blend.h"
 
-#include "testing/base/public/gunit.h"
+#include <gtest/gtest.h>
 #include "cpp/utils/utils.h"
 
 namespace material_color_utilities {

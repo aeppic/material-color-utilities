@@ -16,7 +16,7 @@
 
 #include "cpp/scheme/scheme_monochrome.h"
 
-#include "testing/base/public/gunit.h"
+#include <gtest/gtest.h>
 #include "cpp/cam/hct.h"
 #include "cpp/dynamiccolor/material_dynamic_colors.h"
 

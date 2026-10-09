@@ -24,7 +24,20 @@ namespace material_color_utilities {
 /**
  * Describes the different in tone between colors.
  */
-enum class TonePolarity { kDarker, kLighter, kNearer, kFarther };
+enum class TonePolarity {
+  kDarker,
+  kLighter,
+  kNearer,
+  kFarther,
+  kRelativeDarker,
+  kRelativeLighter,
+};
+
+enum class DeltaConstraint {
+  kExact,
+  kNearer,
+  kFarther,
+};
 
 /**
  * Documents a constraint between two DynamicColors, in which their tones must
@@ -40,6 +53,7 @@ struct ToneDeltaPair {
   double delta_;
   TonePolarity polarity_;
   bool stay_together_;
+  DeltaConstraint constraint_;
 
   /**
    * Documents a constraint in tone distance between two DynamicColors.
@@ -65,12 +79,14 @@ struct ToneDeltaPair {
    * one role has two backgrounds.
    */
   ToneDeltaPair(DynamicColor role_a, DynamicColor role_b, double delta,
-                TonePolarity polarity, bool stay_together)
+                TonePolarity polarity, bool stay_together,
+                DeltaConstraint constraint = DeltaConstraint::kExact)
       : role_a_(role_a),
         role_b_(role_b),
         delta_(delta),
         polarity_(polarity),
-        stay_together_(stay_together) {}
+        stay_together_(stay_together),
+        constraint_(constraint) {}
 };
 
 }  // namespace material_color_utilities

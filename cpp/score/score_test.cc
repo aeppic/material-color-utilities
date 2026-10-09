@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 
-#include "testing/base/public/gunit.h"
+#include <gtest/gtest.h>
 #include "cpp/utils/utils.h"
 
 namespace material_color_utilities {

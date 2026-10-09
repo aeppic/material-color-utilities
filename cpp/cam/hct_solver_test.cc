@@ -16,8 +16,8 @@
 
 #include "cpp/cam/hct_solver.h"
 
-#include "testing/base/public/gmock.h"
-#include "testing/base/public/gunit.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include "cpp/cam/cam.h"
 #include "cpp/utils/utils.h"
 

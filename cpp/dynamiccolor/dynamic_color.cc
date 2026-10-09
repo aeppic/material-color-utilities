@@ -37,6 +37,147 @@ using std::optional;
 
 using DoubleFunction = function<double(const DynamicScheme&)>;
 
+namespace {
+
+bool EndsWith(const std::string& value, const std::string& suffix) {
+  return value.size() >= suffix.size() &&
+         value.compare(value.size() - suffix.size(), suffix.size(), suffix) ==
+             0;
+}
+
+double GetTone2025(DynamicColor& color, const DynamicScheme& scheme) {
+  bool has_tone_delta_pair =
+      color.tone_delta_pair_.has_value() &&
+      (!color.tone_delta_pair_condition_.has_value() ||
+       color.tone_delta_pair_condition_.value()(scheme));
+  if (has_tone_delta_pair) {
+    ToneDeltaPair pair = color.tone_delta_pair_.value()(scheme);
+    bool negative_delta =
+        pair.polarity_ == TonePolarity::kDarker ||
+        (pair.polarity_ == TonePolarity::kRelativeLighter && scheme.is_dark) ||
+        (pair.polarity_ == TonePolarity::kRelativeDarker && !scheme.is_dark);
+    double absolute_delta = negative_delta ? -pair.delta_ : pair.delta_;
+
+    bool is_role_a = color.name_ == pair.role_a_.name_;
+    DynamicColor self_role = is_role_a ? pair.role_a_ : pair.role_b_;
+    DynamicColor reference_role = is_role_a ? pair.role_b_ : pair.role_a_;
+    double self_tone = self_role.tone_(scheme);
+    double reference_tone = reference_role.GetTone(scheme);
+    double relative_delta = absolute_delta * (is_role_a ? 1.0 : -1.0);
+
+    if (pair.constraint_ == DeltaConstraint::kExact) {
+      self_tone = std::clamp(reference_tone + relative_delta, 0.0, 100.0);
+    } else if (pair.constraint_ == DeltaConstraint::kNearer) {
+      if (relative_delta > 0.0) {
+        self_tone = std::clamp(
+            std::clamp(self_tone, reference_tone,
+                       reference_tone + relative_delta),
+            0.0, 100.0);
+      } else {
+        self_tone = std::clamp(
+            std::clamp(self_tone, reference_tone + relative_delta,
+                       reference_tone),
+            0.0, 100.0);
+      }
+    } else if (relative_delta > 0.0) {
+      self_tone =
+          std::clamp(self_tone, reference_tone + relative_delta, 100.0);
+    } else {
+      self_tone =
+          std::clamp(self_tone, 0.0, reference_tone + relative_delta);
+    }
+
+    bool has_background =
+        color.background_.has_value() &&
+        (!color.background_condition_.has_value() ||
+         color.background_condition_.value()(scheme));
+    bool has_contrast_curve =
+        (color.contrast_curve_.has_value() ||
+         color.contrast_curve_function_.has_value()) &&
+        (!color.contrast_curve_condition_.has_value() ||
+         color.contrast_curve_condition_.value()(scheme));
+    if (has_background && has_contrast_curve) {
+      double background_tone =
+          color.background_.value()(scheme).GetTone(scheme);
+      ContrastCurve curve = color.contrast_curve_function_.has_value()
+                                ? color.contrast_curve_function_.value()(scheme)
+                                : color.contrast_curve_.value();
+      double desired_ratio = curve.get(scheme.contrast_level);
+      if (RatioOfTones(background_tone, self_tone) < desired_ratio ||
+          scheme.contrast_level < 0.0) {
+        self_tone = ForegroundTone(background_tone, desired_ratio);
+      }
+    }
+
+    if (color.is_background_ && !EndsWith(color.name_, "_fixed_dim")) {
+      self_tone = self_tone >= 57.0
+                      ? std::clamp(self_tone, 65.0, 100.0)
+                      : std::clamp(self_tone, 0.0, 49.0);
+    }
+    return self_tone;
+  }
+
+  double answer = color.tone_(scheme);
+  bool has_background =
+      color.background_.has_value() &&
+      (!color.background_condition_.has_value() ||
+       color.background_condition_.value()(scheme));
+  bool has_contrast_curve =
+      (color.contrast_curve_.has_value() ||
+       color.contrast_curve_function_.has_value()) &&
+      (!color.contrast_curve_condition_.has_value() ||
+       color.contrast_curve_condition_.value()(scheme));
+  if (!has_background || !has_contrast_curve) {
+    return answer;
+  }
+
+  double background_tone = color.background_.value()(scheme).GetTone(scheme);
+  ContrastCurve curve = color.contrast_curve_function_.has_value()
+                            ? color.contrast_curve_function_.value()(scheme)
+                            : color.contrast_curve_.value();
+  double desired_ratio = curve.get(scheme.contrast_level);
+  if (RatioOfTones(background_tone, answer) < desired_ratio ||
+      scheme.contrast_level < 0.0) {
+    answer = ForegroundTone(background_tone, desired_ratio);
+  }
+
+  if (color.is_background_ && !EndsWith(color.name_, "_fixed_dim")) {
+    answer = answer >= 57.0 ? std::clamp(answer, 65.0, 100.0)
+                            : std::clamp(answer, 0.0, 49.0);
+  }
+
+  bool has_second_background =
+      color.second_background_.has_value() &&
+      (!color.second_background_condition_.has_value() ||
+       color.second_background_condition_.value()(scheme));
+  if (!has_second_background) {
+    return answer;
+  }
+
+  double second_background_tone =
+      color.second_background_.value()(scheme).GetTone(scheme);
+  double upper = std::max(background_tone, second_background_tone);
+  double lower = std::min(background_tone, second_background_tone);
+  if (RatioOfTones(upper, answer) >= desired_ratio &&
+      RatioOfTones(lower, answer) >= desired_ratio) {
+    return answer;
+  }
+
+  double light_option = Lighter(upper, desired_ratio);
+  double dark_option = Darker(lower, desired_ratio);
+  bool prefers_light = TonePrefersLightForeground(background_tone) ||
+                       TonePrefersLightForeground(second_background_tone);
+  if (prefers_light) {
+    return light_option < 0.0 ? 100.0 : light_option;
+  }
+  if ((light_option < 0.0) != (dark_option < 0.0)) {
+    return light_option >= 0.0 ? light_option : dark_option;
+  }
+  return dark_option < 0.0 ? 0.0 : dark_option;
+}
+
+}  // namespace
+
 template <class T, class U>
 optional<U> SafeCall(optional<function<optional<U>(const T&)>> f, const T& x) {
   if (f == nullopt) {
@@ -100,7 +241,19 @@ DynamicColor::DynamicColor(
         second_background,
     std::optional<ContrastCurve> contrast_curve,
     std::optional<std::function<ToneDeltaPair(const DynamicScheme&)>>
-        tone_delta_pair)
+        tone_delta_pair,
+    std::optional<std::function<double(const DynamicScheme&)>>
+        chroma_multiplier,
+    std::optional<std::function<bool(const DynamicScheme&)>>
+        background_condition,
+    std::optional<std::function<bool(const DynamicScheme&)>>
+        second_background_condition,
+    std::optional<std::function<ContrastCurve(const DynamicScheme&)>>
+        contrast_curve_function,
+    std::optional<std::function<bool(const DynamicScheme&)>>
+        tone_delta_pair_condition,
+    std::optional<std::function<bool(const DynamicScheme&)>>
+        contrast_curve_condition)
     : name_(name),
       palette_(palette),
       tone_(tone),
@@ -108,7 +261,13 @@ DynamicColor::DynamicColor(
       background_(background),
       second_background_(second_background),
       contrast_curve_(contrast_curve),
-      tone_delta_pair_(tone_delta_pair) {}
+      tone_delta_pair_(tone_delta_pair),
+      chroma_multiplier_(chroma_multiplier),
+      background_condition_(background_condition),
+      second_background_condition_(second_background_condition),
+      contrast_curve_function_(contrast_curve_function),
+      tone_delta_pair_condition_(tone_delta_pair_condition),
+      contrast_curve_condition_(contrast_curve_condition) {}
 
 DynamicColor DynamicColor::FromPalette(
     std::string name, std::function<TonalPalette(const DynamicScheme&)> palette,
@@ -122,14 +281,44 @@ DynamicColor DynamicColor::FromPalette(
 }
 
 Argb DynamicColor::GetArgb(const DynamicScheme& scheme) {
-  return palette_(scheme).get(GetTone(scheme));
+  return GetHct(scheme).ToInt();
 }
 
 Hct DynamicColor::GetHct(const DynamicScheme& scheme) {
-  return Hct(GetArgb(scheme));
+  if (versioned_color_.has_value() &&
+      scheme.spec_version != SpecVersion::k2021) {
+    return versioned_color_.value()(scheme).GetHct(scheme);
+  }
+
+  TonalPalette palette = palette_(scheme);
+  double tone = GetTone(scheme);
+  if (scheme.spec_version == SpecVersion::k2021 ||
+      !chroma_multiplier_.has_value()) {
+    return Hct(palette.get(tone));
+  }
+
+  double multiplier = chroma_multiplier_.value()(scheme);
+  if (multiplier == 1.0) {
+    return Hct(palette.get(tone));
+  }
+
+  double chroma = palette.get_chroma() * multiplier;
+  if (tone == 99.0 && Hct::IsYellow(palette.get_hue())) {
+    return Hct(TonalPalette(palette.get_hue(), chroma).get(tone));
+  }
+  return Hct(palette.get_hue(), chroma, tone);
 }
 
 double DynamicColor::GetTone(const DynamicScheme& scheme) {
+  if (versioned_color_.has_value() &&
+      scheme.spec_version != SpecVersion::k2021) {
+    return versioned_color_.value()(scheme).GetTone(scheme);
+  }
+
+  if (scheme.spec_version != SpecVersion::k2021) {
+    return GetTone2025(*this, scheme);
+  }
+
   bool decreasingContrast = scheme.contrast_level < 0;
 
   // Case 1: dual foreground, pair of colors with delta constraint.

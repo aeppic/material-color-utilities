@@ -89,6 +89,10 @@ class Hct {
    */
   Argb ToInt() const;
 
+  static bool IsBlue(double hue) { return hue >= 250.0 && hue < 270.0; }
+  static bool IsYellow(double hue) { return hue >= 105.0 && hue < 125.0; }
+  static bool IsCyan(double hue) { return hue >= 170.0 && hue < 207.0; }
+
   /**
    * Sets the hue of this color. Chroma may decrease because chroma has a
    * different maximum for any given hue and tone.

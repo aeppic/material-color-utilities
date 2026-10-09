@@ -98,6 +98,18 @@ struct DynamicColor {
   std::optional<ContrastCurve> contrast_curve_;
   std::optional<std::function<ToneDeltaPair(const DynamicScheme&)>>
       tone_delta_pair_;
+  std::optional<std::function<double(const DynamicScheme&)>> chroma_multiplier_;
+  std::optional<std::function<bool(const DynamicScheme&)>> background_condition_;
+  std::optional<std::function<bool(const DynamicScheme&)>>
+      second_background_condition_;
+  std::optional<std::function<ContrastCurve(const DynamicScheme&)>>
+      contrast_curve_function_;
+  std::optional<std::function<bool(const DynamicScheme&)>>
+      contrast_curve_condition_;
+  std::optional<std::function<bool(const DynamicScheme&)>>
+      tone_delta_pair_condition_;
+  std::optional<std::function<DynamicColor(const DynamicScheme&)>>
+      versioned_color_;
 
   /** A convenience constructor, only requiring name, palette, and tone. */
   static DynamicColor FromPalette(
@@ -121,9 +133,22 @@ struct DynamicColor {
                    background,
                std::optional<std::function<DynamicColor(const DynamicScheme&)>>
                    second_background,
-               std::optional<ContrastCurve> contrast_curve,
-               std::optional<std::function<ToneDeltaPair(const DynamicScheme&)>>
-                   tone_delta_pair);
+                std::optional<ContrastCurve> contrast_curve,
+                std::optional<std::function<ToneDeltaPair(const DynamicScheme&)>>
+                    tone_delta_pair,
+                std::optional<std::function<double(const DynamicScheme&)>>
+                    chroma_multiplier = std::nullopt,
+                std::optional<std::function<bool(const DynamicScheme&)>>
+                    background_condition = std::nullopt,
+                std::optional<std::function<bool(const DynamicScheme&)>>
+                    second_background_condition = std::nullopt,
+                std::optional<
+                    std::function<ContrastCurve(const DynamicScheme&)>>
+                    contrast_curve_function = std::nullopt,
+                std::optional<std::function<bool(const DynamicScheme&)>>
+                    tone_delta_pair_condition = std::nullopt,
+                std::optional<std::function<bool(const DynamicScheme&)>>
+                    contrast_curve_condition = std::nullopt);
 };
 
 }  // namespace material_color_utilities

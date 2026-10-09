@@ -20,6 +20,7 @@
 
 #include "cpp/cam/hct.h"
 #include "cpp/dynamiccolor/dynamic_scheme.h"
+#include "cpp/dynamiccolor/dynamic_scheme_palettes_2025.h"
 #include "cpp/dynamiccolor/variant.h"
 #include "cpp/palettes/tones.h"
 
@@ -31,29 +32,40 @@ const std::vector<double> kSecondaryRotations = {18, 15, 10, 12, 15,
                                                  18, 15, 12, 12};
 
 const std::vector<double> kTertiaryRotations = {35, 30, 20, 25, 30,
-                                                35, 30, 25, 25};
+                                                 35, 30, 25, 25};
+
+namespace {
+
+DynamicSchemeOptions LegacyOptions(Hct source, bool is_dark,
+                                   double contrast_level) {
+  return DynamicSchemeOptions{
+      {source},
+      Variant::kVibrant,
+      contrast_level,
+      is_dark,
+      TonalPalette(source.get_hue(), 200.0),
+      TonalPalette(DynamicScheme::GetRotatedHue(source, kHues,
+                                                kSecondaryRotations),
+                   24.0),
+      TonalPalette(DynamicScheme::GetRotatedHue(source, kHues,
+                                                kTertiaryRotations),
+                   32.0),
+      TonalPalette(source.get_hue(), 10.0),
+      TonalPalette(source.get_hue(), 12.0)};
+}
+
+}  // namespace
 
 SchemeVibrant::SchemeVibrant(Hct set_source_color_hct, bool set_is_dark,
-                             double set_contrast_level)
-    : DynamicScheme(
-          /*set_source_color_hct:*/ set_source_color_hct,
-          /*variant:*/ Variant::kVibrant,
-          /*contrast_level:*/ set_contrast_level,
-          /*is_dark:*/ set_is_dark,
-          /*primary_palette:*/
-          TonalPalette(set_source_color_hct.get_hue(), 200.0),
-          /*secondary_palette:*/
-          TonalPalette(DynamicScheme::GetRotatedHue(set_source_color_hct, kHues,
-                                                    kSecondaryRotations),
-                       24.0),
-          /*tertiary_palette:*/
-          TonalPalette(DynamicScheme::GetRotatedHue(set_source_color_hct, kHues,
-                                                    kTertiaryRotations),
-                       32.0),
-          /*neutral_palette:*/
-          TonalPalette(set_source_color_hct.get_hue(), 10.0),
-          /*neutral_variant_palette:*/
-          TonalPalette(set_source_color_hct.get_hue(), 12.0)) {}
+                              double set_contrast_level)
+    : SchemeVibrant(set_source_color_hct, set_is_dark, set_contrast_level,
+                    SpecVersion::k2021, Platform::kPhone) {}
+
+SchemeVibrant::SchemeVibrant(Hct source, bool is_dark, double contrast_level,
+                             SpecVersion spec_version, Platform platform)
+    : DynamicScheme(ResolveSchemeOptions2025(
+          LegacyOptions(source, is_dark, contrast_level), spec_version,
+          platform)) {}
 
 SchemeVibrant::SchemeVibrant(Hct set_source_color_hct, bool set_is_dark)
     : SchemeVibrant::SchemeVibrant(set_source_color_hct, set_is_dark, 0.0) {}

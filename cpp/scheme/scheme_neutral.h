@@ -24,6 +24,9 @@ namespace material_color_utilities {
 
 struct SchemeNeutral : public DynamicScheme {
   SchemeNeutral(Hct source_color_hct, bool is_dark, double contrast_level);
+  SchemeNeutral(Hct source_color_hct, bool is_dark, double contrast_level,
+                SpecVersion spec_version,
+                Platform platform = Platform::kPhone);
   SchemeNeutral(Hct source_color_hct, bool is_dark);
 };
 

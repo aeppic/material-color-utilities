@@ -16,7 +16,7 @@
 
 #include "cpp/contrast/contrast.h"
 
-#include "testing/base/public/gunit.h"
+#include <gtest/gtest.h>
 
 namespace material_color_utilities {
 

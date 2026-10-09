@@ -17,6 +17,8 @@
 #ifndef CPP_DYNAMICCOLOR_MATERIAL_DYNAMIC_COLORS_H_
 #define CPP_DYNAMICCOLOR_MATERIAL_DYNAMIC_COLORS_H_
 
+#include <string>
+
 #include "cpp/dynamiccolor/dynamic_color.h"
 
 namespace material_color_utilities {
@@ -28,6 +30,7 @@ class MaterialDynamicColors {
   static DynamicColor TertiaryPaletteKeyColor();
   static DynamicColor NeutralPaletteKeyColor();
   static DynamicColor NeutralVariantPaletteKeyColor();
+  static DynamicColor ErrorPaletteKeyColor();
   static DynamicColor Background();
   static DynamicColor OnBackground();
   static DynamicColor Surface();
@@ -49,19 +52,23 @@ class MaterialDynamicColors {
   static DynamicColor Scrim();
   static DynamicColor SurfaceTint();
   static DynamicColor Primary();
+  static DynamicColor PrimaryDim();
   static DynamicColor OnPrimary();
   static DynamicColor PrimaryContainer();
   static DynamicColor OnPrimaryContainer();
   static DynamicColor InversePrimary();
   static DynamicColor Secondary();
+  static DynamicColor SecondaryDim();
   static DynamicColor OnSecondary();
   static DynamicColor SecondaryContainer();
   static DynamicColor OnSecondaryContainer();
   static DynamicColor Tertiary();
+  static DynamicColor TertiaryDim();
   static DynamicColor OnTertiary();
   static DynamicColor TertiaryContainer();
   static DynamicColor OnTertiaryContainer();
   static DynamicColor Error();
+  static DynamicColor ErrorDim();
   static DynamicColor OnError();
   static DynamicColor ErrorContainer();
   static DynamicColor OnErrorContainer();
@@ -77,6 +84,21 @@ class MaterialDynamicColors {
   static DynamicColor TertiaryFixedDim();
   static DynamicColor OnTertiaryFixed();
   static DynamicColor OnTertiaryFixedVariant();
+  static DynamicColor ErrorFixed();
+  static DynamicColor ErrorFixedDim();
+  static DynamicColor OnErrorFixed();
+  static DynamicColor OnErrorFixedVariant();
+  static DynamicColor InverseError();
+  static DynamicColor Extended(const std::string& name);
+  static DynamicColor ExtendedDim(const std::string& name);
+  static DynamicColor OnExtended(const std::string& name);
+  static DynamicColor ExtendedContainer(const std::string& name);
+  static DynamicColor OnExtendedContainer(const std::string& name);
+  static DynamicColor ExtendedFixed(const std::string& name);
+  static DynamicColor ExtendedFixedDim(const std::string& name);
+  static DynamicColor OnExtendedFixed(const std::string& name);
+  static DynamicColor OnExtendedFixedVariant(const std::string& name);
+  static DynamicColor InverseExtended(const std::string& name);
 };
 
 }  // namespace material_color_utilities

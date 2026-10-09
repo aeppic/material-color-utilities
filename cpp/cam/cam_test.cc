@@ -16,8 +16,8 @@
 
 #include "cpp/cam/cam.h"
 
-#include "testing/base/public/gmock.h"
-#include "testing/base/public/gunit.h"
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace material_color_utilities {
 

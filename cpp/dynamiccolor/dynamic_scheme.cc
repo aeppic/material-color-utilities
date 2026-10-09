@@ -16,10 +16,15 @@
 
 #include "cpp/dynamiccolor/dynamic_scheme.h"
 
+#include <cmath>
 #include <optional>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
+#include "cpp/blend/blend.h"
 #include "cpp/cam/hct.h"
+#include "cpp/dynamiccolor/color_spec.h"
 #include "cpp/dynamiccolor/material_dynamic_colors.h"
 #include "cpp/dynamiccolor/variant.h"
 #include "cpp/palettes/tones.h"
@@ -27,41 +32,163 @@
 
 namespace material_color_utilities {
 
+namespace {
+
+Hct PrimarySourceColor(const std::vector<Hct>& source_colors) {
+  if (source_colors.empty()) {
+    throw std::invalid_argument("source_color_hcts cannot be empty");
+  }
+  return source_colors.front();
+}
+
+SpecVersion ResolveSpecVersion(SpecVersion spec_version, Variant variant) {
+  if (variant == Variant::kCmf) {
+    return spec_version;
+  }
+  if (variant == Variant::kExpressive || variant == Variant::kVibrant ||
+      variant == Variant::kTonalSpot || variant == Variant::kNeutral) {
+    return spec_version == SpecVersion::k2026 ? SpecVersion::k2025
+                                              : spec_version;
+  }
+  return SpecVersion::k2021;
+}
+
+std::optional<CmfProfile> ResolveProfile(
+    std::optional<CmfProfile> profile, Variant variant,
+    SpecVersion spec_version) {
+  if (profile.has_value() &&
+      (variant != Variant::kCmf || spec_version != SpecVersion::k2026)) {
+    throw std::invalid_argument(
+        "CMF profiles require the CMF variant and spec version 2026");
+  }
+  if (variant == Variant::kCmf && spec_version == SpecVersion::k2026) {
+    return profile.value_or(CmfProfile::k2026);
+  }
+  return std::nullopt;
+}
+
+std::optional<double> ResolveNeutralChromaPercent(
+    std::optional<double> value, std::optional<CmfProfile> profile) {
+  if (value.has_value() && profile != CmfProfile::k2026Custom) {
+    throw std::invalid_argument(
+        "neutral_chroma_percent requires the custom CMF 2026 profile");
+  }
+  if (profile != CmfProfile::k2026Custom) {
+    return std::nullopt;
+  }
+  double resolved =
+      value.value_or(DynamicScheme::kDefaultCmfNeutralChromaPercent);
+  if (!std::isfinite(resolved) || resolved < 0.0 || resolved > 100.0) {
+    throw std::out_of_range(
+        "neutral_chroma_percent must be finite and between 0 and 100");
+  }
+  return resolved;
+}
+
+std::optional<double> ResolveNeutralChromaCap(
+    std::optional<double> value, std::optional<CmfProfile> profile) {
+  if (value.has_value() && profile != CmfProfile::k2026Custom) {
+    throw std::invalid_argument(
+        "neutral_chroma_cap requires the custom CMF 2026 profile");
+  }
+  if (profile != CmfProfile::k2026Custom) {
+    return std::nullopt;
+  }
+  double resolved = value.value_or(DynamicScheme::kDefaultCmfNeutralChromaCap);
+  if (!std::isfinite(resolved) || resolved < 0.0) {
+    throw std::out_of_range(
+        "neutral_chroma_cap must be finite and non-negative");
+  }
+  return resolved;
+}
+
+DynamicSchemeOptions LegacyOptions(
+    Hct source_color_hct, Variant variant, double contrast_level, bool is_dark,
+    TonalPalette primary_palette, TonalPalette secondary_palette,
+    TonalPalette tertiary_palette, TonalPalette neutral_palette,
+    TonalPalette neutral_variant_palette,
+    std::optional<TonalPalette> error_palette) {
+  return DynamicSchemeOptions{
+      {source_color_hct},       variant,
+      contrast_level,          is_dark,
+      primary_palette,         secondary_palette,
+      tertiary_palette,        neutral_palette,
+      neutral_variant_palette, error_palette,
+  };
+}
+
+}  // namespace
+
 DynamicScheme::DynamicScheme(Hct source_color_hct, Variant variant,
                              double contrast_level, bool is_dark,
                              TonalPalette primary_palette,
                              TonalPalette secondary_palette,
                              TonalPalette tertiary_palette,
                              TonalPalette neutral_palette,
-                             TonalPalette neutral_variant_palette,
-                             std::optional<TonalPalette> error_palette)
-    : source_color_hct(source_color_hct),
-      variant(variant),
-      is_dark(is_dark),
-      contrast_level(contrast_level),
-      primary_palette(primary_palette),
-      secondary_palette(secondary_palette),
-      tertiary_palette(tertiary_palette),
-      neutral_palette(neutral_palette),
-      neutral_variant_palette(neutral_variant_palette),
-      error_palette(error_palette.value_or(TonalPalette(25.0, 84.0))) {}
+                              TonalPalette neutral_variant_palette,
+                              std::optional<TonalPalette> error_palette)
+    : DynamicScheme(LegacyOptions(
+          source_color_hct, variant, contrast_level, is_dark, primary_palette,
+          secondary_palette, tertiary_palette, neutral_palette,
+          neutral_variant_palette, error_palette)) {}
+
+DynamicScheme::DynamicScheme(DynamicSchemeOptions options)
+    : source_color_hct(PrimarySourceColor(options.source_color_hcts)),
+      source_color_hcts(options.source_color_hcts),
+      variant(options.variant),
+      is_dark(options.is_dark),
+      contrast_level(options.contrast_level),
+      platform(options.platform),
+      spec_version(ResolveSpecVersion(options.spec_version, options.variant)),
+      profile(ResolveProfile(options.profile, options.variant, spec_version)),
+      neutral_chroma_percent(ResolveNeutralChromaPercent(
+          options.neutral_chroma_percent, profile)),
+      neutral_chroma_cap(
+          ResolveNeutralChromaCap(options.neutral_chroma_cap, profile)),
+      primary_palette(options.primary_palette),
+      secondary_palette(options.secondary_palette),
+      tertiary_palette(options.tertiary_palette),
+      neutral_palette(options.neutral_palette),
+      neutral_variant_palette(options.neutral_variant_palette),
+      error_palette(
+          options.error_palette.value_or(TonalPalette(25.0, 84.0))) {
+  for (ExtendedColor& extended_color : options.extended_colors) {
+    AddExtendedColor(std::move(extended_color));
+  }
+}
+
+void DynamicScheme::AddExtendedColor(ExtendedColor extended_color) {
+  Hct source_color = extended_color.harmonize
+                         ? Hct(BlendHarmonize(extended_color.color.ToInt(),
+                                             source_color_hct.ToInt()))
+                         : extended_color.color;
+  extended_palette.insert_or_assign(extended_color.name,
+                                    TonalPalette(source_color));
+  raw_extended_colors.push_back(std::move(extended_color));
+}
 
 double DynamicScheme::GetRotatedHue(Hct source_color, std::vector<double> hues,
                                     std::vector<double> rotations) {
-  double source_hue = source_color.get_hue();
+  size_t size = hues.empty() ? 0 : std::min(hues.size() - 1, rotations.size());
+  if (size == 0) return source_color.get_hue();
+  double rotation = GetPiecewiseHue(source_color, std::move(hues),
+                                    std::move(rotations));
+  return SanitizeDegreesDouble(source_color.get_hue() + rotation);
+}
 
-  if (rotations.size() == 1) {
-    return SanitizeDegreesDouble(source_color.get_hue() + rotations[0]);
-  }
-  int size = hues.size();
-  for (int i = 0; i <= (size - 2); ++i) {
-    double this_hue = hues[i];
-    double next_hue = hues[i + 1];
-    if (this_hue < source_hue && source_hue < next_hue) {
-      return SanitizeDegreesDouble(source_hue + rotations[i]);
+double DynamicScheme::GetPiecewiseHue(Hct source_color,
+                                      std::vector<double> hue_breakpoints,
+                                      std::vector<double> hues) {
+  size_t size = hue_breakpoints.empty()
+                    ? 0
+                    : std::min(hue_breakpoints.size() - 1, hues.size());
+  double source_hue = source_color.get_hue();
+  for (size_t i = 0; i < size; ++i) {
+    if (source_hue >= hue_breakpoints[i] &&
+        source_hue < hue_breakpoints[i + 1]) {
+      return SanitizeDegreesDouble(hues[i]);
     }
   }
-
   return source_hue;
 }
 
@@ -85,6 +212,10 @@ Argb DynamicScheme::GetNeutralPaletteKeyColor() const {
 
 Argb DynamicScheme::GetNeutralVariantPaletteKeyColor() const {
   return MaterialDynamicColors::NeutralVariantPaletteKeyColor().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetErrorPaletteKeyColor() const {
+  return MaterialDynamicColors::ErrorPaletteKeyColor().GetArgb(*this);
 }
 
 Argb DynamicScheme::GetBackground() const {
@@ -171,6 +302,13 @@ Argb DynamicScheme::GetPrimary() const {
   return MaterialDynamicColors::Primary().GetArgb(*this);
 }
 
+Argb DynamicScheme::GetPrimaryDim() const {
+  if (spec_version == SpecVersion::k2021) {
+    throw std::logic_error("primary_dim is undefined before spec 2025");
+  }
+  return MaterialDynamicColors::PrimaryDim().GetArgb(*this);
+}
+
 Argb DynamicScheme::GetOnPrimary() const {
   return MaterialDynamicColors::OnPrimary().GetArgb(*this);
 }
@@ -191,6 +329,13 @@ Argb DynamicScheme::GetSecondary() const {
   return MaterialDynamicColors::Secondary().GetArgb(*this);
 }
 
+Argb DynamicScheme::GetSecondaryDim() const {
+  if (spec_version == SpecVersion::k2021) {
+    throw std::logic_error("secondary_dim is undefined before spec 2025");
+  }
+  return MaterialDynamicColors::SecondaryDim().GetArgb(*this);
+}
+
 Argb DynamicScheme::GetOnSecondary() const {
   return MaterialDynamicColors::OnSecondary().GetArgb(*this);
 }
@@ -207,6 +352,13 @@ Argb DynamicScheme::GetTertiary() const {
   return MaterialDynamicColors::Tertiary().GetArgb(*this);
 }
 
+Argb DynamicScheme::GetTertiaryDim() const {
+  if (spec_version == SpecVersion::k2021) {
+    throw std::logic_error("tertiary_dim is undefined before spec 2025");
+  }
+  return MaterialDynamicColors::TertiaryDim().GetArgb(*this);
+}
+
 Argb DynamicScheme::GetOnTertiary() const {
   return MaterialDynamicColors::OnTertiary().GetArgb(*this);
 }
@@ -221,6 +373,13 @@ Argb DynamicScheme::GetOnTertiaryContainer() const {
 
 Argb DynamicScheme::GetError() const {
   return MaterialDynamicColors::Error().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetErrorDim() const {
+  if (spec_version == SpecVersion::k2021) {
+    throw std::logic_error("error_dim is undefined before spec 2025");
+  }
+  return MaterialDynamicColors::ErrorDim().GetArgb(*this);
 }
 
 Argb DynamicScheme::GetOnError() const {
@@ -281,6 +440,67 @@ Argb DynamicScheme::GetOnTertiaryFixed() const {
 
 Argb DynamicScheme::GetOnTertiaryFixedVariant() const {
   return MaterialDynamicColors::OnTertiaryFixedVariant().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetErrorFixed() const {
+  return MaterialDynamicColors::ErrorFixed().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetErrorFixedDim() const {
+  return MaterialDynamicColors::ErrorFixedDim().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetOnErrorFixed() const {
+  return MaterialDynamicColors::OnErrorFixed().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetOnErrorFixedVariant() const {
+  return MaterialDynamicColors::OnErrorFixedVariant().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetInverseError() const {
+  return MaterialDynamicColors::InverseError().GetArgb(*this);
+}
+
+Argb DynamicScheme::GetExtended(const std::string& name) const {
+  return MaterialDynamicColors::Extended(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetExtendedDim(const std::string& name) const {
+  return MaterialDynamicColors::ExtendedDim(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetOnExtended(const std::string& name) const {
+  return MaterialDynamicColors::OnExtended(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetExtendedContainer(const std::string& name) const {
+  return MaterialDynamicColors::ExtendedContainer(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetOnExtendedContainer(const std::string& name) const {
+  return MaterialDynamicColors::OnExtendedContainer(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetExtendedFixed(const std::string& name) const {
+  return MaterialDynamicColors::ExtendedFixed(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetExtendedFixedDim(const std::string& name) const {
+  return MaterialDynamicColors::ExtendedFixedDim(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetOnExtendedFixed(const std::string& name) const {
+  return MaterialDynamicColors::OnExtendedFixed(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetOnExtendedFixedVariant(
+    const std::string& name) const {
+  return MaterialDynamicColors::OnExtendedFixedVariant(name).GetArgb(*this);
+}
+
+Argb DynamicScheme::GetInverseExtended(const std::string& name) const {
+  return MaterialDynamicColors::InverseExtended(name).GetArgb(*this);
 }
 
 }  // namespace material_color_utilities

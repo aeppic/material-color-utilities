@@ -24,6 +24,9 @@ namespace material_color_utilities {
 
 struct SchemeExpressive : public DynamicScheme {
   SchemeExpressive(Hct source_color_hct, bool is_dark, double contrast_level);
+  SchemeExpressive(Hct source_color_hct, bool is_dark, double contrast_level,
+                   SpecVersion spec_version,
+                   Platform platform = Platform::kPhone);
   SchemeExpressive(Hct source_color_hct, bool is_dark);
 };
 

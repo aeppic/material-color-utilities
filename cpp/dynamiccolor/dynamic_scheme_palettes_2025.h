@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef CPP_SCHEME_SCHEME_TONAL_SPOT_H_
-#define CPP_SCHEME_SCHEME_TONAL_SPOT_H_
+#ifndef CPP_DYNAMICCOLOR_DYNAMIC_SCHEME_PALETTES_2025_H_
+#define CPP_DYNAMICCOLOR_DYNAMIC_SCHEME_PALETTES_2025_H_
 
-#include "cpp/cam/hct.h"
 #include "cpp/dynamiccolor/dynamic_scheme.h"
 
 namespace material_color_utilities {
 
-struct SchemeTonalSpot : public DynamicScheme {
-  SchemeTonalSpot(Hct source_color_hct, bool is_dark, double contrast_level);
-  SchemeTonalSpot(Hct source_color_hct, bool is_dark, double contrast_level,
-                  SpecVersion spec_version,
-                  Platform platform = Platform::kPhone);
-  SchemeTonalSpot(Hct source_color_hct, bool is_dark);
-};
+DynamicSchemeOptions ResolveSchemeOptions2025(
+    DynamicSchemeOptions legacy_options, SpecVersion spec_version,
+    Platform platform);
 
 }  // namespace material_color_utilities
 
-#endif  // CPP_SCHEME_SCHEME_TONAL_SPOT_H_
+#endif  // CPP_DYNAMICCOLOR_DYNAMIC_SCHEME_PALETTES_2025_H_
