@@ -41,6 +41,18 @@ TEST(TonesTest, Blue) {
   EXPECT_EQ(HexFromArgb(tonal_palette.get(0)), "ff000000");
 }
 
+TEST(TonesTest, YellowTone99AveragesNeighboringTones) {
+  TonalPalette palette(110.0, 50.0);
+  Argb lower = palette.get(98.0);
+  Argb upper = palette.get(100.0);
+  Argb expected = ArgbFromRgb(
+      (RedFromInt(lower) + RedFromInt(upper) + 1) / 2,
+      (GreenFromInt(lower) + GreenFromInt(upper) + 1) / 2,
+      (BlueFromInt(lower) + BlueFromInt(upper) + 1) / 2);
+
+  EXPECT_EQ(palette.get(99.0), expected);
+}
+
 TEST(KeyColorTests, ExactChromaAvailable) {
   // Requested chroma is exactly achievable at a certain tone.
   TonalPalette palette = TonalPalette(50.0, 60.0);

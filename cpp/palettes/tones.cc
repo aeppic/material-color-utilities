@@ -51,6 +51,14 @@ TonalPalette::TonalPalette(double hue, double chroma, Hct key_color)
 }
 
 Argb TonalPalette::get(double tone) const {
+  if (tone == 99.0 && Hct::IsYellow(hue_)) {
+    Argb lower = get(98.0);
+    Argb upper = get(100.0);
+    int red = (RedFromInt(lower) + RedFromInt(upper) + 1) / 2;
+    int green = (GreenFromInt(lower) + GreenFromInt(upper) + 1) / 2;
+    int blue = (BlueFromInt(lower) + BlueFromInt(upper) + 1) / 2;
+    return ArgbFromRgb(red, green, blue);
+  }
   return IntFromHcl(hue_, chroma_, tone);
 }
 

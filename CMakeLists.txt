@@ -10,7 +10,6 @@ find_package(absl CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
 file(GLOB_RECURSE MATERIAL_COLOR_SOURCES CONFIGURE_DEPENDS "cpp/*.cc")
-list(FILTER MATERIAL_COLOR_SOURCES EXCLUDE REGEX "_test\\.cc$")
 
 add_library(material_color_utilities STATIC ${MATERIAL_COLOR_SOURCES})
 target_include_directories(material_color_utilities PUBLIC
@@ -21,7 +20,7 @@ include(CTest)
 include(GoogleTest)
 
 file(GLOB_RECURSE MATERIAL_COLOR_TEST_SOURCES CONFIGURE_DEPENDS
-     "cpp/*_test.cc")
+     "tests/cpp/*_test.cc")
 
 foreach(TEST_SOURCE IN LISTS MATERIAL_COLOR_TEST_SOURCES)
   get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
