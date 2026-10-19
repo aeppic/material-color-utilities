@@ -37,11 +37,19 @@ export function isPlatform(value: string): value is Platform {
   return VALID_PLATFORM.includes(value as Platform)
 }
 
-/** The package's CMF 2026 calculation profiles. */
 export type CmfProfile = 'cmf-2026' | 'cmf-2026-custom'
+export type SchemeProfile = CmfProfile | 'tonal-spot-2025-custom'
 const VALID_CMF_PROFILES: CmfProfile[] = ['cmf-2026', 'cmf-2026-custom']
 export function isCmfProfile(value: string): value is CmfProfile {
   return VALID_CMF_PROFILES.includes(value as CmfProfile)
+}
+
+export function isSchemeProfile(value: string): value is SchemeProfile {
+  return isCmfProfile(value) || value === 'tonal-spot-2025-custom'
+}
+
+export function isCustomSchemeProfile(value: string | undefined): boolean {
+  return value === 'cmf-2026-custom' || value === 'tonal-spot-2025-custom'
 }
 
 /**
@@ -88,11 +96,10 @@ export interface DynamicSchemeOptions {
   isDark: boolean
   platform?: Platform
   specVersion?: SpecVersion
-  /** Optional CMF 2026 role-calculation profile. */
-  profile?: CmfProfile
-  /** Percentage of source chroma used for custom CMF neutral palettes (0–100). */
+  profile?: SchemeProfile
+  /** Percentage of source chroma used for custom neutral palettes (0–100). */
   neutralChromaPercent?: number
-  /** Maximum source chroma used for custom CMF neutral palettes. */
+  /** Maximum source chroma used for custom neutral palettes. */
   neutralChromaCap?: number
   primaryPalette?: TonalPalette
   secondaryPalette?: TonalPalette
@@ -208,13 +215,11 @@ export class DynamicScheme {
   /** The version of the design spec that this scheme is based on. */
   readonly specVersion: SpecVersion
 
-  /** CMF 2026 profile; undefined for other variants or spec versions. */
-  readonly profile?: CmfProfile
+  readonly profile?: SchemeProfile
 
-  /** Custom CMF neutral-palette source-chroma percentage; undefined for other profiles. */
+  /** Undefined for profiles without custom neutral palettes. */
   readonly neutralChromaPercent?: number
 
-  /** Custom CMF neutral-palette source-chroma cap; undefined for other profiles. */
   readonly neutralChromaCap?: number
 
   /**
@@ -305,25 +310,27 @@ export class DynamicScheme {
       args.specVersion ?? '2021',
       this.variant
     )
-    if (args.profile && !isCmfProfile(args.profile)) {
-      throw new Error(`Unknown CMF profile: ${args.profile}`)
+    if (args.profile && !isSchemeProfile(args.profile)) {
+      throw new Error(`Unknown scheme profile: ${args.profile}`)
     }
-    if (args.profile && (this.variant !== Variant.CMF || this.specVersion !== '2026')) {
+    if (args.profile && isCmfProfile(args.profile) && (this.variant !== Variant.CMF || this.specVersion !== '2026')) {
       throw new Error('CMF profiles require the CMF variant and spec version 2026')
     }
-    this.profile = this.variant === Variant.CMF && this.specVersion === '2026'
-      ? args.profile ?? 'cmf-2026'
-      : undefined
-    if (args.neutralChromaPercent !== undefined && this.profile !== 'cmf-2026-custom') {
-      throw new Error('neutralChromaPercent requires the cmf-2026-custom profile')
+    if (args.profile === 'tonal-spot-2025-custom' && (this.variant !== Variant.TONAL_SPOT || this.specVersion !== '2025')) {
+      throw new Error('The custom Tonal Spot profile requires the TONAL_SPOT variant and spec version 2025')
     }
-    if (args.neutralChromaCap !== undefined && this.profile !== 'cmf-2026-custom') {
-      throw new Error('neutralChromaCap requires the cmf-2026-custom profile')
+    this.profile = args.profile ?? (this.variant === Variant.CMF && this.specVersion === '2026' ? 'cmf-2026' : undefined)
+    const hasCustomNeutrals = isCustomSchemeProfile(this.profile)
+    if (args.neutralChromaPercent !== undefined && !hasCustomNeutrals) {
+      throw new Error('neutralChromaPercent requires a custom scheme profile')
     }
-    const neutralChromaPercent = this.profile === 'cmf-2026-custom'
+    if (args.neutralChromaCap !== undefined && !hasCustomNeutrals) {
+      throw new Error('neutralChromaCap requires a custom scheme profile')
+    }
+    const neutralChromaPercent = hasCustomNeutrals
       ? args.neutralChromaPercent ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_PERCENT
       : undefined
-    const neutralChromaCap = this.profile === 'cmf-2026-custom'
+    const neutralChromaCap = hasCustomNeutrals
       ? args.neutralChromaCap ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_CAP
       : undefined
     if (neutralChromaPercent !== undefined && (!Number.isFinite(neutralChromaPercent) || neutralChromaPercent < 0 || neutralChromaPercent > 100)) {

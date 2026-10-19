@@ -35,10 +35,13 @@ enum class Platform {
   kWatch,
 };
 
-enum class CmfProfile {
+enum class SchemeProfile {
   k2026,
   k2026Custom,
+  kTonalSpot2025Custom,
 };
+
+using CmfProfile = SchemeProfile;
 
 struct ExtendedColor {
   std::string name;
@@ -59,7 +62,7 @@ struct DynamicSchemeOptions {
   std::optional<TonalPalette> error_palette = std::nullopt;
   Platform platform = Platform::kPhone;
   SpecVersion spec_version = SpecVersion::k2021;
-  std::optional<CmfProfile> profile = std::nullopt;
+  std::optional<SchemeProfile> profile = std::nullopt;
   std::optional<double> neutral_chroma_percent = std::nullopt;
   std::optional<double> neutral_chroma_cap = std::nullopt;
   std::vector<ExtendedColor> extended_colors;
@@ -76,7 +79,7 @@ struct DynamicScheme {
   double contrast_level;
   Platform platform;
   SpecVersion spec_version;
-  std::optional<CmfProfile> profile;
+  std::optional<SchemeProfile> profile;
   std::optional<double> neutral_chroma_percent;
   std::optional<double> neutral_chroma_cap;
 

@@ -53,9 +53,16 @@ SpecVersion ResolveSpecVersion(SpecVersion spec_version, Variant variant) {
   return SpecVersion::k2021;
 }
 
-std::optional<CmfProfile> ResolveProfile(
-    std::optional<CmfProfile> profile, Variant variant,
+std::optional<SchemeProfile> ResolveProfile(
+    std::optional<SchemeProfile> profile, Variant variant,
     SpecVersion spec_version) {
+  if (profile == SchemeProfile::kTonalSpot2025Custom) {
+    if (variant != Variant::kTonalSpot || spec_version != SpecVersion::k2025) {
+      throw std::invalid_argument(
+          "custom Tonal Spot requires the Tonal Spot variant and spec version 2025");
+    }
+    return profile;
+  }
   if (profile.has_value() &&
       (variant != Variant::kCmf || spec_version != SpecVersion::k2026)) {
     throw std::invalid_argument(
@@ -67,13 +74,18 @@ std::optional<CmfProfile> ResolveProfile(
   return std::nullopt;
 }
 
+bool HasCustomNeutrals(std::optional<SchemeProfile> profile) {
+  return profile == SchemeProfile::k2026Custom ||
+         profile == SchemeProfile::kTonalSpot2025Custom;
+}
+
 std::optional<double> ResolveNeutralChromaPercent(
-    std::optional<double> value, std::optional<CmfProfile> profile) {
-  if (value.has_value() && profile != CmfProfile::k2026Custom) {
+    std::optional<double> value, std::optional<SchemeProfile> profile) {
+  if (value.has_value() && !HasCustomNeutrals(profile)) {
     throw std::invalid_argument(
-        "neutral_chroma_percent requires the custom CMF 2026 profile");
+        "neutral_chroma_percent requires a custom scheme profile");
   }
-  if (profile != CmfProfile::k2026Custom) {
+  if (!HasCustomNeutrals(profile)) {
     return std::nullopt;
   }
   double resolved =
@@ -86,12 +98,12 @@ std::optional<double> ResolveNeutralChromaPercent(
 }
 
 std::optional<double> ResolveNeutralChromaCap(
-    std::optional<double> value, std::optional<CmfProfile> profile) {
-  if (value.has_value() && profile != CmfProfile::k2026Custom) {
+    std::optional<double> value, std::optional<SchemeProfile> profile) {
+  if (value.has_value() && !HasCustomNeutrals(profile)) {
     throw std::invalid_argument(
-        "neutral_chroma_cap requires the custom CMF 2026 profile");
+        "neutral_chroma_cap requires a custom scheme profile");
   }
-  if (profile != CmfProfile::k2026Custom) {
+  if (!HasCustomNeutrals(profile)) {
     return std::nullopt;
   }
   double resolved = value.value_or(DynamicScheme::kDefaultCmfNeutralChromaCap);
