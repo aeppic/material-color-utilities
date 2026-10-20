@@ -38,18 +38,33 @@ export function isPlatform(value: string): value is Platform {
 }
 
 export type CmfProfile = 'cmf-2026' | 'cmf-2026-custom'
-export type SchemeProfile = CmfProfile | 'tonal-spot-2025-custom'
+export type TonalSpotProfile = 'tonal-spot-2025-custom' | 'tonal-spot-2025-hybrid-custom'
+export type CustomSchemeProfile = TonalSpotProfile | 'cmf-2026-custom'
+export type SchemeProfile = CmfProfile | TonalSpotProfile
 const VALID_CMF_PROFILES: CmfProfile[] = ['cmf-2026', 'cmf-2026-custom']
 export function isCmfProfile(value: string): value is CmfProfile {
   return VALID_CMF_PROFILES.includes(value as CmfProfile)
 }
 
 export function isSchemeProfile(value: string): value is SchemeProfile {
-  return isCmfProfile(value) || value === 'tonal-spot-2025-custom'
+  return isCmfProfile(value) || isTonalSpotProfile(value)
 }
 
-export function isCustomSchemeProfile(value: string | undefined): boolean {
-  return value === 'cmf-2026-custom' || value === 'tonal-spot-2025-custom'
+export function isTonalSpotProfile(value: string | undefined): value is TonalSpotProfile {
+  return value === 'tonal-spot-2025-custom' || value === 'tonal-spot-2025-hybrid-custom'
+}
+
+export function isCustomSchemeProfile(value: string | undefined): value is CustomSchemeProfile {
+  return value === 'cmf-2026-custom' || isTonalSpotProfile(value)
+}
+
+export function validateNeutralChromaOptions(percent: number | undefined, cap: number | undefined): void {
+  if (percent !== undefined && (!Number.isFinite(percent) || percent < 0 || percent > 100)) {
+    throw new RangeError('neutralChromaPercent must be a finite number from 0 to 100')
+  }
+  if (cap !== undefined && (!Number.isFinite(cap) || cap < 0)) {
+    throw new RangeError('neutralChromaCap must be a finite non-negative number')
+  }
 }
 
 /**
@@ -316,7 +331,7 @@ export class DynamicScheme {
     if (args.profile && isCmfProfile(args.profile) && (this.variant !== Variant.CMF || this.specVersion !== '2026')) {
       throw new Error('CMF profiles require the CMF variant and spec version 2026')
     }
-    if (args.profile === 'tonal-spot-2025-custom' && (this.variant !== Variant.TONAL_SPOT || this.specVersion !== '2025')) {
+    if (isTonalSpotProfile(args.profile) && (this.variant !== Variant.TONAL_SPOT || this.specVersion !== '2025')) {
       throw new Error('The custom Tonal Spot profile requires the TONAL_SPOT variant and spec version 2025')
     }
     this.profile = args.profile ?? (this.variant === Variant.CMF && this.specVersion === '2026' ? 'cmf-2026' : undefined)
@@ -333,12 +348,7 @@ export class DynamicScheme {
     const neutralChromaCap = hasCustomNeutrals
       ? args.neutralChromaCap ?? DynamicScheme.DEFAULT_CMF_NEUTRAL_CHROMA_CAP
       : undefined
-    if (neutralChromaPercent !== undefined && (!Number.isFinite(neutralChromaPercent) || neutralChromaPercent < 0 || neutralChromaPercent > 100)) {
-      throw new RangeError('neutralChromaPercent must be a finite number from 0 to 100')
-    }
-    if (neutralChromaCap !== undefined && (!Number.isFinite(neutralChromaCap) || neutralChromaCap < 0)) {
-      throw new RangeError('neutralChromaCap must be a finite non-negative number')
-    }
+    validateNeutralChromaOptions(neutralChromaPercent, neutralChromaCap)
     this.neutralChromaPercent = neutralChromaPercent
     this.neutralChromaCap = neutralChromaCap
     this.primaryPalette =

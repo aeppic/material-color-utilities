@@ -39,6 +39,7 @@ enum class SchemeProfile {
   k2026,
   k2026Custom,
   kTonalSpot2025Custom,
+  kTonalSpot2025HybridCustom,
 };
 
 using CmfProfile = SchemeProfile;

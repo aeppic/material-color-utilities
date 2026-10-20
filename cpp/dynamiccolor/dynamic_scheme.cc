@@ -56,7 +56,8 @@ SpecVersion ResolveSpecVersion(SpecVersion spec_version, Variant variant) {
 std::optional<SchemeProfile> ResolveProfile(
     std::optional<SchemeProfile> profile, Variant variant,
     SpecVersion spec_version) {
-  if (profile == SchemeProfile::kTonalSpot2025Custom) {
+  if (profile == SchemeProfile::kTonalSpot2025Custom ||
+      profile == SchemeProfile::kTonalSpot2025HybridCustom) {
     if (variant != Variant::kTonalSpot || spec_version != SpecVersion::k2025) {
       throw std::invalid_argument(
           "custom Tonal Spot requires the Tonal Spot variant and spec version 2025");
@@ -76,7 +77,8 @@ std::optional<SchemeProfile> ResolveProfile(
 
 bool HasCustomNeutrals(std::optional<SchemeProfile> profile) {
   return profile == SchemeProfile::k2026Custom ||
-         profile == SchemeProfile::kTonalSpot2025Custom;
+         profile == SchemeProfile::kTonalSpot2025Custom ||
+         profile == SchemeProfile::kTonalSpot2025HybridCustom;
 }
 
 std::optional<double> ResolveNeutralChromaPercent(
